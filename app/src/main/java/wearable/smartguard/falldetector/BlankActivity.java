@@ -1,7 +1,12 @@
 package wearable.smartguard.falldetector;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -11,6 +16,15 @@ public class BlankActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blank);
+        Log.d("TAG", "Start");
+        AlarmManager scheduler = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class );
+        PendingIntent scheduledIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        scheduler.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, scheduledIntent);
+
+//        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class );
+//        startService(intent);
     }
 
     @Override
