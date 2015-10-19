@@ -1,5 +1,7 @@
 package wearable.smartguard.falldetector;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class Utils {
@@ -21,6 +23,7 @@ public class Utils {
 
             if (curr > prev && curr > next) {
                 if (a.get(i).getNormalizedAcceleration() > FALL_THRESHOLD) {
+                    Log.d("Utils", "Peak: " + a.get(i).getNormalizedAcceleration() + "/" + FALL_THRESHOLD);
                     ++numberOfPeaksThatExceedThreshold;
                 }
             }
@@ -34,6 +37,31 @@ public class Utils {
             average += data.getNormalizedAcceleration();
         }
         return average / a.size();
+    }
+
+    public static int identifyWhichAxisIsOrthogonalToGravity(ArrayList<AccelerometerData> a) {
+        float xAverage = 0.0f;
+        float yAverage = 0.0f;
+        float zAverage = 0.0f;
+
+        for (AccelerometerData data : a) {
+            xAverage += Math.abs(data.getX());
+            yAverage += Math.abs(data.getY());
+            zAverage += Math.abs(data.getZ());
+        }
+
+        xAverage = xAverage / a.size();
+        yAverage = yAverage / a.size();
+        zAverage = zAverage / a.size();
+
+
+        if (xAverage > yAverage && xAverage > zAverage) {
+            return 0;
+        } else if (yAverage > xAverage && yAverage > zAverage) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
     public ArrayList<AccelerometerData> runMedianFilter(ArrayList<AccelerometerData> a) {

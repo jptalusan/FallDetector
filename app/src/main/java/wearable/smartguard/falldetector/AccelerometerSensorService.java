@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import sqlitedb.SQLiteDBInterface;
-
 /**
  * Created by jtalusan on 10/13/2015.
  * http://stackoverflow.com/questions/5877780/orientation-from-android-accelerometer
@@ -23,22 +21,23 @@ import sqlitedb.SQLiteDBInterface;
 public class AccelerometerSensorService extends Service implements SensorEventListener,
         SQLiteDataLogger.AsyncResponse {
     private static final String DEBUG_TAG = "AccelService";
-    private static final float NS2S = 1.0f / 1000000000.0f;
+    private final ArrayList<UserFallListener> mListeners = new ArrayList<>();
     private SensorManager sensorManager = null;
     private Sensor sensor = null;
     private ArrayList<AccelerometerData> accelerometerData;
     private ArrayList<AccelerometerData> potentiallyFallenData;
     private float x, y, z = 0.0f;
-    private boolean LINEAR_ACCELEROMETER = false;
-    private long timestamp = 0;
-    private float alpha = 0;
-    private float[] gravity = new float[]{9.81f, 9.81f, 9.81f};
     private int potentialFallCounter = 0;
     private boolean potentiallyFallen = false;
     private boolean actuallyFallen = false;
-    private double FALL_THRESHOLD = 18.0;
-    private double MOVE_THRESHOLD = 0.95;
-    private SQLiteDBInterface datasource;
+    //端末が実際に取得した加速度値。重力加速度も含まれる。This values include gravity force.
+    private float[] currentOrientationValues = {0.0f, 0.0f, 0.0f};
+    //ローパス、ハイパスフィルタ後の加速度値 Values after low pass and high pass filter
+    private float[] currentAccelerationValues = {0.0f, 0.0f, 0.0f};
+    //previous data 1つ前の値
+    private float old_x = 0.0f;
+    private float old_y = 0.0f;
+    private float old_z = 0.0f;
 
     public AccelerometerSensorService() {
         super();
@@ -49,16 +48,13 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
         super.onCreate();
         accelerometerData = new ArrayList<>();
         potentiallyFallenData = new ArrayList<>();
-        datasource = new SQLiteDBInterface(this);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
-            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-            LINEAR_ACCELEROMETER = true;
-        } else {
-            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            LINEAR_ACCELEROMETER = false;
-        }
+//        if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
+//            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+//        } else {
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//        }
 
         Toast.makeText(this, "Service Recording", Toast.LENGTH_SHORT).show();
     }
@@ -67,22 +63,8 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "Start gathering");
-
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-//        if (intent != null) {
-//            boolean status = intent.getBooleanExtra("Active", false);
-//
-//            Log.d(DEBUG_TAG, status + "");
-//            if (!status) {
-//                sensorManager.unregisterListener(this);
-//            } else {
-//                if (sensor != null) {
-//                    sensorManager.registerListener(this, sensor, 1000);
-//                }
-//            }
-//        }
-//        return super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
 
@@ -99,53 +81,47 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, 5) && !potentiallyFallen) {
-            if (LINEAR_ACCELEROMETER) {
-                x = event.values[0];
-                y = event.values[1];
-                z = event.values[2];
-            } else {
-                // alpha is calculated as t / (t + dT)
-                // with t, the low-pass filter's time-constant
-                // and dT, the event delivery rate
-                alpha = 0.8f;
-                gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-                gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-                gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+        //https://gist.github.com/tomoima525/8395322 - Remove gravity factor
+        new CharacterizeActivityTask().execute(event);
 
-                x = event.values[0] - gravity[0];
-                y = event.values[1] - gravity[1];
-                z = event.values[2] - gravity[2];
-            }
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
+        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // ローパスフィルタで重力値を抽出　Isolate the force of gravity with the low-pass filter.
+            currentOrientationValues[0] = event.values[0] * 0.1f + currentOrientationValues[0] * (1.0f - 0.1f);
+            currentOrientationValues[1] = event.values[1] * 0.1f + currentOrientationValues[1] * (1.0f - 0.1f);
+            currentOrientationValues[2] = event.values[2] * 0.1f + currentOrientationValues[2] * (1.0f - 0.1f);
+
+            // 重力の値を省くRemove the gravity contribution with the high-pass filter.
+            currentAccelerationValues[0] = event.values[0] - currentOrientationValues[0];
+            currentAccelerationValues[1] = event.values[1] - currentOrientationValues[1];
+            currentAccelerationValues[2] = event.values[2] - currentOrientationValues[2];
+
+            // ベクトル値を求めるために差分を計算　diff for vector
+            x = currentAccelerationValues[0] - old_x;
+            y = currentAccelerationValues[1] - old_y;
+            z = currentAccelerationValues[2] - old_z;
+
+            // 状態更新
+            old_x = currentAccelerationValues[0];
+            old_y = currentAccelerationValues[1];
+            old_z = currentAccelerationValues[2];
+        }
+
+        if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.FALL_DETECT_WINDOW_SECS) && !potentiallyFallen) {
             AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
             accelerometerData.add(a);
-//            Log.d(DEBUG_TAG, a.toString());
-//            Log.d(DEBUG_TAG, a.getNormalizedAcceleration() + "");
+//            Log.d(DEBUG_TAG, a.toString() + "/" + a.getNormalizedAcceleration());
         } else if (potentiallyFallen) {
             Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
-            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, 9)) {
-                if (LINEAR_ACCELEROMETER) {
-                    x = event.values[0];
-                    y = event.values[1];
-                    z = event.values[2];
-                } else {
-                    // alpha is calculated as t / (t + dT)
-                    // with t, the low-pass filter's time-constant
-                    // and dT, the event delivery rate
-                    alpha = 0.8f;
-                    gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-                    gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-                    gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-
-                    x = event.values[0] - gravity[0];
-                    y = event.values[1] - gravity[1];
-                    z = event.values[2] - gravity[2];
-                }
+            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
                 AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
                 accelerometerData.add(a);
             } else { //Not moving past MOVE_THRESHOLD after 10 seconds
                 Log.d(DEBUG_TAG, "End of 10 second potential fall cycle");
-                if (Utils.getAverageNormalizedAcceleration(accelerometerData) > MOVE_THRESHOLD) {
+                if (Utils.getAverageNormalizedAcceleration(accelerometerData) > Constants.MOVE_THRESHOLD) {
                     Log.d(DEBUG_TAG, "Ave: " + Utils.getAverageNormalizedAcceleration(accelerometerData));
                     potentiallyFallen = false;
                     Log.d(DEBUG_TAG, "False alarm");
@@ -153,7 +129,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
                 } else {
                     actuallyFallen = true;
                     //TODO: Prompt user if they are ok.
-                    Log.d(DEBUG_TAG, "Actual Fall!");
+                    Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
                     sensorManager.unregisterListener(this); //TEST
                     //TODO: Log potentiallyFallenData
                     SQLiteDataLogger logger = new SQLiteDataLogger(this);
@@ -167,9 +143,9 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
             Log.d(DEBUG_TAG, "Call contacts");
         } else {
             Log.d(DEBUG_TAG, "End of 5 second detection cycle.");
-            potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, FALL_THRESHOLD);
+            potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, Constants.FALL_THRESHOLD);
             Log.d(DEBUG_TAG, "potential fall count: " + potentialFallCounter);
-            if (potentialFallCounter > 0 && potentialFallCounter < 5) {
+            if (potentialFallCounter > Constants.LOWER_LIMIT_PEAK_COUNT && potentialFallCounter < Constants.UPPER_LIMIT_PEAK_COUNT) {
                 potentiallyFallenData = accelerometerData;
                 potentiallyFallen = true;
                 Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
@@ -179,7 +155,6 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
             potentialFallCounter = 0;
             accelerometerData.clear();
         }
-
     }
 
     @Override
@@ -194,5 +169,23 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
         } else {
             Log.d(DEBUG_TAG, "Failed to save to DB, please try again.");
         }
+    }
+
+    /**
+     * Calls registered event listeners
+     */
+    private void notifyListeners(int activity) {
+        if (activity == 0) return;
+        for (UserFallListener listener : mListeners) {
+            listener.onUserFall(activity);
+            Log.d(DEBUG_TAG, String.valueOf(activity));
+        }
+    }
+
+    public interface UserFallListener {
+        /**
+         * Called when leg state have changed
+         */
+        void onUserFall(int activity);
     }
 }
