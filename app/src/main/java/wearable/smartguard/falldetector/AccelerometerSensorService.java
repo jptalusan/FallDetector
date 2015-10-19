@@ -13,17 +13,21 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import sqlitedb.SQLiteDBInterface;
+
 /**
  * Created by jtalusan on 10/13/2015.
  * http://stackoverflow.com/questions/5877780/orientation-from-android-accelerometer
  * https://github.com/AndroidExamples/android-sensor-example/blob/master/app/src/main/java/be/hcpl/android/sensors/service/SensorBackgroundService.java
  */
-public class AccelerometerSensorService extends Service implements SensorEventListener {
+public class AccelerometerSensorService extends Service implements SensorEventListener,
+        SQLiteDataLogger.AsyncResponse {
     private static final String DEBUG_TAG = "AccelService";
     private static final float NS2S = 1.0f / 1000000000.0f;
     private SensorManager sensorManager = null;
     private Sensor sensor = null;
     private ArrayList<AccelerometerData> accelerometerData;
+    private ArrayList<AccelerometerData> potentiallyFallenData;
     private float x, y, z = 0.0f;
     private boolean LINEAR_ACCELEROMETER = false;
     private long timestamp = 0;
@@ -33,7 +37,8 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     private boolean potentiallyFallen = false;
     private boolean actuallyFallen = false;
     private double FALL_THRESHOLD = 18.0;
-    private double MOVE_THRESHOLD = 0.9;
+    private double MOVE_THRESHOLD = 0.95;
+    private SQLiteDBInterface datasource;
 
     public AccelerometerSensorService() {
         super();
@@ -43,6 +48,8 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     public void onCreate() {
         super.onCreate();
         accelerometerData = new ArrayList<>();
+        potentiallyFallenData = new ArrayList<>();
+        datasource = new SQLiteDBInterface(this);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
@@ -61,7 +68,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "Start gathering");
 
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 //        if (intent != null) {
 //            boolean status = intent.getBooleanExtra("Active", false);
@@ -142,12 +149,18 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
                     Log.d(DEBUG_TAG, "Ave: " + Utils.getAverageNormalizedAcceleration(accelerometerData));
                     potentiallyFallen = false;
                     Log.d(DEBUG_TAG, "False alarm");
+                    accelerometerData.clear();
                 } else {
                     actuallyFallen = true;
                     //TODO: Prompt user if they are ok.
                     Log.d(DEBUG_TAG, "Actual Fall!");
                     sensorManager.unregisterListener(this); //TEST
+                    //TODO: Log potentiallyFallenData
+                    SQLiteDataLogger logger = new SQLiteDataLogger(this);
+                    logger.execute(accelerometerData);
+                    logger.delegate = this;
                 }
+                potentiallyFallenData.clear();
             }
         } else if (actuallyFallen) {
             sensorManager.unregisterListener(this);
@@ -157,6 +170,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
             potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, FALL_THRESHOLD);
             Log.d(DEBUG_TAG, "potential fall count: " + potentialFallCounter);
             if (potentialFallCounter > 0 && potentialFallCounter < 5) {
+                potentiallyFallenData = accelerometerData;
                 potentiallyFallen = true;
                 Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
             } else {
@@ -171,5 +185,14 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    @Override
+    public void processIsFinished(boolean output) {
+        if (output) {
+            Log.d(DEBUG_TAG, "Successfully saved to DB.");
+        } else {
+            Log.d(DEBUG_TAG, "Failed to save to DB, please try again.");
+        }
     }
 }

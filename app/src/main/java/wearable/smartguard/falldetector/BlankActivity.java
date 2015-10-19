@@ -16,6 +16,13 @@ public class BlankActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blank);
+
+        //TESTING
+//        SQLiteDBInterface datasource;
+//        datasource = new SQLiteDBInterface(this);
+//        datasource.open();
+//        datasource.insertAccelerometerDataToDB(new AccelerometerData(123, 20.0f, 0.2f, 210.0f));
+//        datasource.close();
         Log.d("TAG", "Start");
 //        AlarmManager scheduler = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 //        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class );
