@@ -16,6 +16,8 @@ public class Constants {
     public static final String XAXIS = "XAXIS";
     public static final String YAXIS = "YAXIS";
     public static final String ZAXIS = "ZAXIS";
+    public static final String LATITUDE = "LATITUDE";
+    public static final String LONGITUDE = "LONGITUDE";
 
     //IDs
     public static final int XAXISISORTHO = 0;

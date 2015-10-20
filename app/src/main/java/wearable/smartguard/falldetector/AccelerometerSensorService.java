@@ -82,7 +82,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
         //https://gist.github.com/tomoima525/8395322 - Remove gravity factor
-        new CharacterizeActivityTask().execute(event);
+//        new CharacterizeActivityTask().execute(event);
 
         if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             x = event.values[0];
@@ -130,7 +130,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
                     actuallyFallen = true;
                     //TODO: Prompt user if they are ok.
                     Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
-                    sensorManager.unregisterListener(this); //TEST
+                    sensorManager.unregisterListener(this);
                     //TODO: Log potentiallyFallenData
                     SQLiteDataLogger logger = new SQLiteDataLogger(this);
                     logger.execute(accelerometerData);
@@ -165,6 +165,8 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     @Override
     public void processIsFinished(boolean output) {
         if (output) {
+            resetFallDetection();
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(DEBUG_TAG, "Successfully saved to DB.");
         } else {
             Log.d(DEBUG_TAG, "Failed to save to DB, please try again.");
@@ -187,5 +189,10 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
          * Called when leg state have changed
          */
         void onUserFall(int activity);
+    }
+
+    private void resetFallDetection() {
+        potentiallyFallen = false;
+        actuallyFallen = false;
     }
 }

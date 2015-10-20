@@ -44,7 +44,7 @@ public class SQLiteDBInterface {
     }
 
     public void insertAccelerometerDataToDB(AccelerometerData a) {
-        Log.d(DEBUG_TAG, "Accelerometer result is unique in SQLiteDB");
+        Log.d(DEBUG_TAG, "Inserting result to DB");
 
         ContentValues v = new ContentValues();
         v.put(Constants.TIMESTAMP, a.getTimestamp());

@@ -1,54 +1,41 @@
 package wearable.smartguard.falldetector;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
+import android.app.AlertDialog;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class BlankActivity extends AppCompatActivity {
     private static String DEBUG_TAG = "Activity";
     private Button startStop;
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blank);
 
-        //TESTING
-//        SQLiteDBInterface datasource;
-//        datasource = new SQLiteDBInterface(this);
-//        datasource.open();
-//        datasource.insertAccelerometerDataToDB(new AccelerometerData(123, 20.0f, 0.2f, 210.0f));
-//        datasource.close();
         Log.d("TAG", "Start");
-//        AlarmManager scheduler = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class );
-//        intent.putExtra("Active", true);
-//        PendingIntent scheduledIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        scheduler.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, scheduledIntent);
-//
-//        startStop = (Button) findViewById(R.id.startStop);
-//        startStop.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class );
-//                intent.putExtra("Active", false);
-//                AlarmManager scheduler = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//                PendingIntent scheduledIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//                scheduler.cancel(scheduledIntent);
-////                scheduler.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, scheduledIntent);
-////                PendingIntent scheduledIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-////                AlarmManager alarmManagerstop = (AlarmManager) getSystemService(ALARM_SERVICE);
-////                alarmManagerstop.cancel(scheduledIntent);
-////                scheduledIntent.cancel();
-//                Log.d(DEBUG_TAG, "Alarm is stopped");
-//            }
-//        });
+
         Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
         startService(intent);
+
+        checkPlayServices();
+        if(checkIfLocationIsEnabled()) {
+            startAlarmManager();
+        }
     }
 
     @Override
@@ -71,5 +58,75 @@ public class BlankActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Method to verify google play services on the device
+     * */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "This device is not supported.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkIfLocationIsEnabled() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled && !network_enabled) {
+            // notify user
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage("GPS network not enabled");
+            dialog.setPositiveButton("Open Location settings", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    // TODO Auto-generated method stub
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(myIntent);
+                    startAlarmManager();
+                }
+            });
+            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    whenLocationIsNotSet();
+                }
+            });
+            dialog.show();
+        } else {
+            return true;
+        }
+        return false;
+    }
+
+    private void startAlarmManager() {
+        Intent alarmIntent = new Intent(this, LocationSensorService.class);
+        this.startService(alarmIntent);
+    }
+
+    private void whenLocationIsNotSet() {
+        Log.d(DEBUG_TAG, "Location disabled");
     }
 }
