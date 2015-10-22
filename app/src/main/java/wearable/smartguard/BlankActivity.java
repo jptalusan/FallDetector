@@ -1,4 +1,4 @@
-package wearable.smartguard.falldetector;
+package wearable.smartguard;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +17,8 @@ import android.app.AlertDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import wearable.smartguard.falldetector.AccelerometerSensorService;
+import wearable.smartguard.falldetector.R;
 import wearable.smartguard.geofence.LocationSensorService;
 
 public class BlankActivity extends AppCompatActivity {

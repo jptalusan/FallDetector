@@ -1,8 +1,10 @@
-package wearable.smartguard.falldetector;
+package wearable.smartguard;
 
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import wearable.smartguard.falldetector.AccelerometerData;
 
 public class Utils {
     public static long getCurrentTimeStampInMillis() {

@@ -13,6 +13,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import sqlitedb.SQLiteDataLogger;
+import wearable.smartguard.Constants;
+import wearable.smartguard.Utils;
+
 /**
  * Created by jtalusan on 10/13/2015.
  * http://stackoverflow.com/questions/5877780/orientation-from-android-accelerometer

@@ -1,4 +1,4 @@
-package wearable.smartguard.falldetector;
+package wearable.smartguard;
 
 /**
  * Created by jtalusan on 10/19/2015.

@@ -1,10 +1,14 @@
-package wearable.smartguard.falldetector;
+package wearable.smartguard.characterizeactivity;
 
 import android.hardware.SensorEvent;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import wearable.smartguard.falldetector.AccelerometerData;
+import wearable.smartguard.Constants;
+import wearable.smartguard.Utils;
 
 /**
  * Created by jtalusan on 10/19/2015.

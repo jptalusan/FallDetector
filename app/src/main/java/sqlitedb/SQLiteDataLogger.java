@@ -1,4 +1,4 @@
-package wearable.smartguard.falldetector;
+package sqlitedb;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 
 import sqlitedb.SQLiteDBInterface;
+import wearable.smartguard.falldetector.AccelerometerData;
 
 /**
  * Created by jtalusan on 10/19/2015.
