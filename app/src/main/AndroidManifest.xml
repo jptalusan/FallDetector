@@ -28,9 +28,13 @@
             android:enabled="true"
             android:exported="true" >
         </service>
-        <service android:name=".LocationSensorService"
+        <service android:name="wearable.smartguard.geofence.LocationSensorService"
             android:enabled="true"
             android:exported="true" >
+        </service>
+        <service android:name="wearable.smartguard.geofence.GeofenceTransitionsIntentService"
+            android:exported="true"
+            android:enabled="true" >
         </service>
     </application>
 

@@ -33,4 +33,7 @@ public class Constants {
     public static final long FALL_DETECT_WINDOW_SECS = 5;
     public static final long VERIFY_FALL_DETECT_WINDOW_SECS = 9;
     public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 9;
+
+    //GEOFENCE
+    public static final float FENCE_RADIUS_IN_METERS = 100f;
 }

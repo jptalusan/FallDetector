@@ -17,6 +17,8 @@ import android.app.AlertDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import wearable.smartguard.geofence.LocationSensorService;
+
 public class BlankActivity extends AppCompatActivity {
     private static String DEBUG_TAG = "Activity";
     private Button startStop;
