@@ -3,6 +3,7 @@ package wearable.smartguard;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -25,6 +26,8 @@ public class BlankActivity extends AppCompatActivity {
     private static String DEBUG_TAG = "Activity";
     private Button startStop;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
+    private SharedPreferences editor;
+    private String appname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +35,22 @@ public class BlankActivity extends AppCompatActivity {
         setContentView(R.layout.activity_blank);
 
         Log.d("TAG", "Start");
-
+        appname = getResources().getString(R.string.app_name);
+        editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
         Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
         startService(intent);
 
         checkPlayServices();
-        if(checkIfLocationIsEnabled()) {
-            startAlarmManager();
+
+        if(Utils.isNetworkAvailable(this) && Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
+            Log.d(DEBUG_TAG, "Not starting location service");
+            //do not start location service
+            editor.edit().putBoolean("Started", false).apply();
+        } else {
+            Log.d(DEBUG_TAG, "Starting location service");
+            if(checkIfLocationIsEnabled()) {
+                startAlarmManager();
+            }
         }
     }
 

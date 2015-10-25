@@ -36,4 +36,12 @@ public class Constants {
 
     //GEOFENCE
     public static final float FENCE_RADIUS_IN_METERS = 100f;
+    public static final int LOCATION_ACCURACY = 20;
+    public static final float NEGLIGIBLE_LOCATION_CHANGE = 10f;
+    public static final long DEFAULT_UPDATE_INTERVAL_IN_SEC = 10000;
+    public static final long DEFAULT_FASTEST_INTERVAL_IN_SEC = 15000;
+    public static final int DEFAULT_DISPLACEMENT_IN_M = 2;
+
+    //NETWORK
+    public static final String HOME_SSID = "\"Talusan Family Network\"";
 }

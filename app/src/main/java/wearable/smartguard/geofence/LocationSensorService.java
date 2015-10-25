@@ -1,7 +1,6 @@
 package wearable.smartguard.geofence;
 
 import android.app.IntentService;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -10,14 +9,9 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.common.api.ResultCallback;
 
 import wearable.smartguard.Constants;
 import wearable.smartguard.falldetector.R;
@@ -45,17 +39,11 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
 
     private SharedPreferences editor;
     private String appname;
-    private Geofence home;
 
     // Location updates intervals in sec
-    private static int UPDATE_INTERVAL = 10000; // 10 sec
-    private static int FATEST_INTERVAL = 15000; // 15 sec
-    private static int DISPLACEMENT = 10; // 10 meters
-
-    /**
-     * Used when requesting to add or remove geofences.
-     */
-    private PendingIntent mGeofencePendingIntent;
+    private static long UPDATE_INTERVAL = Constants.DEFAULT_UPDATE_INTERVAL_IN_SEC; // 10 sec
+    private static long FATEST_INTERVAL = Constants.DEFAULT_FASTEST_INTERVAL_IN_SEC; // 15 sec
+    private static int DISPLACEMENT = Constants.DEFAULT_DISPLACEMENT_IN_M; // 10 meters
 
     public LocationSensorService() {
         super("GPSIntentService");
@@ -68,12 +56,24 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         Log.d(TAG, "onCreate:Service started");
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, MODE_PRIVATE);
-        //TODO: Need to check availability of play services first
-        populateGeofenceList();
-        buildGoogleApiClient();
-        createLocationRequest();
-        previousLocation = new Location("");
-        mGeofencePendingIntent = null;
+        if(editor.getBoolean("Started", false)) {
+            buildGoogleApiClient();
+            createLocationRequest(UPDATE_INTERVAL, LocationRequest.PRIORITY_HIGH_ACCURACY, DISPLACEMENT);
+            previousLocation = new Location("");
+            editor.edit().putBoolean("Started", true).apply();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        if(!mGoogleApiClient.isConnected()) {
+            System.out.println("connecting...");
+            mGoogleApiClient.connect();
+        } else {
+            System.out.println("staring loc updates...");
+            stopLocationUpdates();
+        }
+        editor.edit().putBoolean("Started", false).apply();;
     }
 
     @Override
@@ -110,35 +110,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     @Override
     public void onConnected(Bundle arg0) {
         System.out.println("onConnected");
-//        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//        if(location == null) {
-//            System.out.println("location == null");
-            startLocationUpdates();
-//        } else {
-//            System.out.println("location != null");
-//            handleNewLocation(location);
-//        }
-
-        //START TEST
-        //http://stackoverflow.com/questions/26633796/android-locationservices-geofencingapi-example-usage - geofences
-        PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(
-                mGoogleApiClient,
-                getGeofencingRequest(),
-                getGeofencePendingIntent());
-        result.setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(Status status) {
-                if (status.isSuccess()) {
-                    Log.e(TAG, "Registered successfully geofence");
-                    //successfully registered
-                } else if (status.hasResolution()) {
-
-                } else {
-                    Log.e(TAG, "Registering failed: " + status.getStatusMessage());
-                }
-            }
-        });
-        //END TEST
+        startLocationUpdates();
     }
 
     @Override
@@ -160,19 +132,12 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
      * Creating location request object
      * https://developer.android.com/training/location/receive-location-updates.html#location-request
      * */
-    protected void createLocationRequest() {
+    protected void createLocationRequest(long delay, int priority, int displacement) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
-    }
-
-    protected void delayLocationRequest(long delay) {
         mLocationRequest.setInterval(delay);
         mLocationRequest.setFastestInterval(delay);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+        mLocationRequest.setPriority(priority);
+        mLocationRequest.setSmallestDisplacement(displacement);
     }
 
     /**
@@ -183,87 +148,42 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                 mGoogleApiClient, mLocationRequest, this);
     }
 
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
     private void handleNewLocation(Location location) {
         mLastLocation = location;
-        Log.d(TAG, location.toString());
-        //TEST
+
+        //Home Coordinates
         Location userHome = new Location("");//provider name is unnecessary
-        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "14.651489")));//your coordinates of course
-        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "121.049309")));
+        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "14.659799")));
+        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "121.039999")));
 
-        // Assign the new location
-        mLastLocation = location;
-        System.out.println("onLocationChanged: " + mLastLocation);
-        System.out.println("Previous: " + previousLocation.toString() + " - Current: " + mLastLocation.toString());
-        System.out.println("distance: " + mLastLocation.distanceTo(previousLocation));
+        Log.d(TAG, mLastLocation.toString());
 
-        if(mLastLocation.getAccuracy() > 40 && mLastLocation.distanceTo(userHome) > 100) {
-            //TODO: Prompt notification
-//            delayLocationRequest(10000);
-        } else if(mLastLocation.distanceTo(previousLocation) < 20) {
+        if(mLastLocation.getAccuracy() > Constants.LOCATION_ACCURACY && mLastLocation.getLatitude() != 0.0 && mLastLocation.distanceTo(userHome) > Constants.FENCE_RADIUS_IN_METERS) {
+            //TODO: Prompt notification for user exiting home
+            Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
+            if(mLocationRequest.getFastestInterval() != 10000) {
+                mGoogleApiClient.blockingConnect();
+                createLocationRequest(10000, LocationRequest.PRIORITY_HIGH_ACCURACY, 5);
+                buildGoogleApiClient();
+            }
+        } else if(mLastLocation.distanceTo(previousLocation) < Constants.NEGLIGIBLE_LOCATION_CHANGE) { //User has stayed in same vicinity for X seconds
             Log.d(TAG, "delaying requests");
-            delayLocationRequest(25000);
-            startLocationUpdates();
+            if(mLocationRequest.getFastestInterval() != 25000) {
+                createLocationRequest(25000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 30);
+                buildGoogleApiClient();
+            }
+        } else {
+            //TODO: just add the network thing here, add sharedprefs entry in broadcast receiver and read it here to see if it changed network
+            //TODO: or place network thing outside if statement
+            Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
         }
+
         previousLocation.setLatitude(mLastLocation.getLatitude());//your coordinates of course
         previousLocation.setLongitude(mLastLocation.getLongitude());
-    }
-
-    //TESTING GEOFENCES
-    /**
-     * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
-     * Also specifies how the geofence notifications are initially triggered.
-     */
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-        // is already inside that geofence.
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT);
-
-        // Add the geofences to be monitored by geofencing service.
-        builder.addGeofence(home);
-
-        // Return a GeofencingRequest.
-        return builder.build();
-    }
-
-    /**
-     * Gets a PendingIntent to send with the request to add or remove Geofences. Location Services
-     * issues the Intent inside this PendingIntent whenever a geofence transition occurs for the
-     * current list of geofences.
-     *
-     * @return A PendingIntent for the IntentService that handles geofence transitions.
-     */
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    /**
-     * This sample hard codes geofence data. A real app might dynamically create geofences based on
-     * the user's location.
-     */
-    public void populateGeofenceList() {
-        home = new Geofence.Builder()
-                // Set the request ID of the geofence. This is a string to identify this
-                // geofence.
-                .setRequestId("home")
-
-                .setCircularRegion(
-                        Double.parseDouble(editor.getString(Constants.LATITUDE, "14.651489")),
-                        Double.parseDouble(editor.getString(Constants.LATITUDE, "121.049309")),
-                        Constants.FENCE_RADIUS_IN_METERS
-                )
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build();
     }
 }

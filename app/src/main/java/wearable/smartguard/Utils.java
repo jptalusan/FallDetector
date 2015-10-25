@@ -1,5 +1,14 @@
 package wearable.smartguard;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -7,6 +16,7 @@ import java.util.ArrayList;
 import wearable.smartguard.falldetector.AccelerometerData;
 
 public class Utils {
+    private static final String TAG = "Utils";
     public static long getCurrentTimeStampInMillis() {
         return System.currentTimeMillis() / 1000;
     }
@@ -66,8 +76,22 @@ public class Utils {
         }
     }
 
-    public ArrayList<AccelerometerData> runMedianFilter(ArrayList<AccelerometerData> a) {
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null) {
+            Log.d(TAG, activeNetworkInfo.toString());
+            return activeNetworkInfo.isConnected();
+        } else {
+            return false;
+        }
+    }
 
-        return a;
+    public static boolean isConnectedToHome(Context context, String homeSSID) {
+        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo();
+        Log.d(TAG, info.getSSID());
+        return info != null && homeSSID.equals(info.getSSID());
     }
 }
