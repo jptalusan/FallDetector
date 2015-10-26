@@ -81,7 +81,7 @@ public class Utils {
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo != null) {
-            Log.d(TAG, activeNetworkInfo.toString());
+//            Log.d(TAG, activeNetworkInfo.toString());
             return activeNetworkInfo.isConnected();
         } else {
             return false;
@@ -91,7 +91,7 @@ public class Utils {
     public static boolean isConnectedToHome(Context context, String homeSSID) {
         WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();
-        Log.d(TAG, info.getSSID());
+//        Log.d(TAG, info.getSSID());
         return info != null && homeSSID.equals(info.getSSID());
     }
 }

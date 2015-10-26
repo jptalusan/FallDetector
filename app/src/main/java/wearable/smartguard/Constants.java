@@ -44,4 +44,8 @@ public class Constants {
 
     //NETWORK
     public static final String HOME_SSID = "\"Talusan Family Network\"";
+
+    //SHARED PREFS
+    public static final String PREFS_NEW_PRIORITY = "PRIORITY_LEVEL";
+    public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
 }

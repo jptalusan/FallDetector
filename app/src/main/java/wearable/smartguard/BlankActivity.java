@@ -42,16 +42,20 @@ public class BlankActivity extends AppCompatActivity {
 
         checkPlayServices();
 
-        if(Utils.isNetworkAvailable(this) && Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
-            Log.d(DEBUG_TAG, "Not starting location service");
-            //do not start location service
-            editor.edit().putBoolean("Started", false).apply();
-        } else {
-            Log.d(DEBUG_TAG, "Starting location service");
-            if(checkIfLocationIsEnabled()) {
-                startAlarmManager();
-            }
+        Log.d(DEBUG_TAG, "Starting location service");
+        if(checkIfLocationIsEnabled()) {
+            startAlarmManager();
         }
+//        if(Utils.isNetworkAvailable(this) && Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
+//            Log.d(DEBUG_TAG, "Not starting location service");
+//            //do not start location service
+//            editor.edit().putBoolean("Started", false).apply();
+//        } else {
+//            Log.d(DEBUG_TAG, "Starting location service");
+//            if(checkIfLocationIsEnabled()) {
+//                startAlarmManager();
+//            }
+//        }
     }
 
     @Override
