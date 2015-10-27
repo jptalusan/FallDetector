@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="wearable.smartguard.falldetector" >
+    package="wearable.userwatch.accelerometer" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -17,25 +17,30 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="wearable.smartguard.BlankActivity"
+            android:name="wearable.userwatch.BlankActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <service
-            android:name=".AccelerometerSensorService"
+            android:name="wearable.userwatch.falldetector.AccelerometerSensorService"
             android:enabled="true"
             android:exported="true" >
         </service>
-        <service android:name="wearable.smartguard.geofence.LocationSensorService"
+        <service
+            android:name="wearable.userwatch.geofence.LocationSensorService"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
+        </service>
+        <service
+            android:name="wearable.userwatch.geofence.ReactiveLocationProvider"
+            android:enabled="true"
+            android:exported="true">
         </service>
         <receiver
-            android:name="wearable.smartguard.networklistener.NetworkChangeReceiver"
+            android:name="wearable.userwatch.networklistener.NetworkChangeReceiver"
             android:label="NetworkChangeReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

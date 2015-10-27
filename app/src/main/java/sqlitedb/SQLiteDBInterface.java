@@ -7,8 +7,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import wearable.smartguard.falldetector.AccelerometerData;
-import wearable.smartguard.Constants;
+import wearable.userwatch.falldetector.AccelerometerData;
+import wearable.userwatch.Constants;
 
 /**
  * Created by jtalusan on 10/19/2015.

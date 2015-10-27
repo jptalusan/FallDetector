@@ -1,19 +1,15 @@
-package wearable.smartguard;
+package wearable.userwatch;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import wearable.smartguard.falldetector.AccelerometerData;
+import wearable.userwatch.falldetector.AccelerometerData;
 
 public class Utils {
     private static final String TAG = "Utils";

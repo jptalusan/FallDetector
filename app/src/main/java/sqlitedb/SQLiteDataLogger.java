@@ -5,8 +5,7 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-import sqlitedb.SQLiteDBInterface;
-import wearable.smartguard.falldetector.AccelerometerData;
+import wearable.userwatch.falldetector.AccelerometerData;
 
 /**
  * Created by jtalusan on 10/19/2015.

@@ -1,6 +1,5 @@
-package wearable.smartguard.networklistener;
+package wearable.userwatch.networklistener;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +12,8 @@ import android.util.Log;
 
 import com.google.android.gms.location.LocationRequest;
 
-import wearable.smartguard.Constants;
-import wearable.smartguard.falldetector.R;
+import wearable.userwatch.Constants;
+import wearable.userwatch.accelerometer.R;
 
 /**
  * Created by talusan on 10/25/2015.

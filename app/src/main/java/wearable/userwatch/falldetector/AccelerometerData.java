@@ -1,4 +1,4 @@
-package wearable.smartguard.falldetector;
+package wearable.userwatch.falldetector;
 
 public class AccelerometerData {
     private long timestamp;

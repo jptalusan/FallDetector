@@ -1,6 +1,6 @@
-package wearable.smartguard.falldetector;
+package wearable.userwatch.falldetector;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,15 +14,15 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import sqlitedb.SQLiteDataLogger;
-import wearable.smartguard.Constants;
-import wearable.smartguard.Utils;
+import wearable.userwatch.Constants;
+import wearable.userwatch.Utils;
 
 /**
  * Created by jtalusan on 10/13/2015.
  * http://stackoverflow.com/questions/5877780/orientation-from-android-accelerometer
  * https://github.com/AndroidExamples/android-sensor-example/blob/master/app/src/main/java/be/hcpl/android/sensors/service/SensorBackgroundService.java
  */
-public class AccelerometerSensorService extends Service implements SensorEventListener,
+public class AccelerometerSensorService extends IntentService implements SensorEventListener,
         SQLiteDataLogger.AsyncResponse {
     private static final String DEBUG_TAG = "AccelService";
     private final ArrayList<UserFallListener> mListeners = new ArrayList<>();
@@ -44,7 +44,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
     private float old_z = 0.0f;
 
     public AccelerometerSensorService() {
-        super();
+        super("AccelerometerSensorService");
     }
 
     @Override
@@ -63,6 +63,11 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
         Toast.makeText(this, "Service Recording", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        // This describes what will happen when service is triggered
+    }
+
     //TODO: Fix this, to just stop device gathering
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -74,6 +79,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
 
     @Override
     public void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
     }
 
@@ -119,7 +125,7 @@ public class AccelerometerSensorService extends Service implements SensorEventLi
             accelerometerData.add(a);
 //            Log.d(DEBUG_TAG, a.toString() + "/" + a.getNormalizedAcceleration());
         } else if (potentiallyFallen) {
-            Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
+//            Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
             if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
                 AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
                 accelerometerData.add(a);

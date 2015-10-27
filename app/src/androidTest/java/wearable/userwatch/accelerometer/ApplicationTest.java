@@ -1,4 +1,4 @@
-package wearable.smartguard.falldetector;
+package wearable.userwatch.accelerometer;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

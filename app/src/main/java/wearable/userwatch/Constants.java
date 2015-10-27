@@ -1,4 +1,4 @@
-package wearable.smartguard;
+package wearable.userwatch;
 
 /**
  * Created by jtalusan on 10/19/2015.

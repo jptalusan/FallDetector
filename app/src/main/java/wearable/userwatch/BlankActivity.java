@@ -1,4 +1,4 @@
-package wearable.smartguard;
+package wearable.userwatch;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,20 +11,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 import android.app.AlertDialog;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import wearable.smartguard.falldetector.AccelerometerSensorService;
-import wearable.smartguard.falldetector.R;
-import wearable.smartguard.geofence.LocationSensorService;
+import pl.charmas.android.reactivelocation.ReactiveLocationProvider;
+import wearable.userwatch.falldetector.AccelerometerSensorService;
+import wearable.userwatch.accelerometer.R;
+import wearable.userwatch.geofence.LocationSensorService;
 
 public class BlankActivity extends AppCompatActivity {
     private static String DEBUG_TAG = "Activity";
-    private Button startStop;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
     private SharedPreferences editor;
     private String appname;
@@ -42,20 +41,12 @@ public class BlankActivity extends AppCompatActivity {
 
         checkPlayServices();
 
-        Log.d(DEBUG_TAG, "Starting location service");
         if(checkIfLocationIsEnabled()) {
+            Log.d(DEBUG_TAG, "Starting location service v1");
+            Intent reactIntent = new Intent(getApplicationContext(), ReactiveLocationProvider.class);
+            startService(reactIntent);
             startAlarmManager();
         }
-//        if(Utils.isNetworkAvailable(this) && Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
-//            Log.d(DEBUG_TAG, "Not starting location service");
-//            //do not start location service
-//            editor.edit().putBoolean("Started", false).apply();
-//        } else {
-//            Log.d(DEBUG_TAG, "Starting location service");
-//            if(checkIfLocationIsEnabled()) {
-//                startAlarmManager();
-//            }
-//        }
     }
 
     @Override
@@ -143,7 +134,7 @@ public class BlankActivity extends AppCompatActivity {
 
     private void startAlarmManager() {
         Intent alarmIntent = new Intent(this, LocationSensorService.class);
-        this.startService(alarmIntent);
+        startService(alarmIntent);
     }
 
     private void whenLocationIsNotSet() {

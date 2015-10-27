@@ -1,4 +1,4 @@
-package wearable.smartguard.geofence;
+package wearable.userwatch.geofence;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -17,9 +17,9 @@ import com.google.android.gms.location.LocationServices;
 
 import java.lang.ref.WeakReference;
 
-import wearable.smartguard.Constants;
-import wearable.smartguard.Utils;
-import wearable.smartguard.falldetector.R;
+import wearable.userwatch.Constants;
+import wearable.userwatch.Utils;
+import wearable.userwatch.accelerometer.R;
 
 /**
  * Created by talusan on 10/20/2015.
@@ -53,6 +53,8 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     private static int DEFAULT_PRIORITY = 0;
 
     private Location userHome;
+    private LocationPriorityHandler locationPriorityHandler = new LocationPriorityHandler(this);
+
 
     public LocationSensorService() {
         super("GPSIntentService");
@@ -66,7 +68,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, MODE_PRIVATE);
         buildGoogleApiClient();
-        if(Utils.isNetworkAvailable(this) && Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
+        if(Utils.isNetworkAvailable(getApplicationContext()) && Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
             DEFAULT_PRIORITY = LocationRequest.PRIORITY_NO_POWER;
             editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY).apply();
             createLocationRequest(UPDATE_INTERVAL, LocationRequest.PRIORITY_NO_POWER, DISPLACEMENT);
@@ -75,7 +77,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
             editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY).apply();
             createLocationRequest(UPDATE_INTERVAL, LocationRequest.PRIORITY_HIGH_ACCURACY, DISPLACEMENT);
         }
-        userHome = new Location("");//provider name is unnecessary
+        userHome = new Location("");
         previousLocation = new Location("");
     }
 
@@ -94,15 +96,12 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        final LocationPriorityHandler locationPriorityHandler = new LocationPriorityHandler(this);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true) {
                     try {
-                        Thread.sleep(5000);
-//                        if(!mGoogleApiClient.isConnected())
-//                            mGoogleApiClient.blockingConnect();
+                        Thread.sleep(10000);
                         locationPriorityHandler.sendEmptyMessage(0);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -188,17 +187,15 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
             //TODO: Prompt notification for user exiting home
             Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
             if(mLocationRequest.getFastestInterval() != 10000) {
-                if(editor.getInt(Constants.PREFS_CURRENT_PRIORITY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY) !=
-                        editor.getInt(Constants.PREFS_NEW_PRIORITY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)) {
+                if(isNewPrioritySameAsCurrentPriority()) {
                     switchToHighAccuracy();
                 }
             }
         } else if(mLastLocation.distanceTo(previousLocation) < Constants.NEGLIGIBLE_LOCATION_CHANGE) { //User has stayed in same vicinity for X seconds
             Log.d(TAG, "delaying requests");
             if(mLocationRequest.getFastestInterval() != 25000) {
-                if(Utils.isNetworkAvailable(this) && !Utils.isConnectedToHome(this, Constants.HOME_SSID)) {
-                    if(editor.getInt(Constants.PREFS_CURRENT_PRIORITY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY) !=
-                            editor.getInt(Constants.PREFS_NEW_PRIORITY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)) {
+                if(Utils.isNetworkAvailable(getApplicationContext()) && !Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
+                    if(isNewPrioritySameAsCurrentPriority()) {
                         switchToBalancedPower();
                     }
                 }
@@ -216,7 +213,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     public void switchToNoPower() {
         Log.d(TAG, "Switching to no power");
         stopLocationUpdates();
-        editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, LocationRequest.PRIORITY_NO_POWER).apply();
+        setCurrentPriorityAs(LocationRequest.PRIORITY_NO_POWER);
         createLocationRequest(3600000, LocationRequest.PRIORITY_NO_POWER, 100);
         startLocationUpdates();
     }
@@ -224,7 +221,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     public void switchToHighAccuracy() {
         Log.d(TAG, "Switching to high accuracy");
         stopLocationUpdates();
-        editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, LocationRequest.PRIORITY_HIGH_ACCURACY).apply();
+        setCurrentPriorityAs(LocationRequest.PRIORITY_HIGH_ACCURACY);
         createLocationRequest(10000, LocationRequest.PRIORITY_HIGH_ACCURACY, 5);
         startLocationUpdates();
     }
@@ -232,9 +229,13 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     public void switchToBalancedPower() {
         Log.d(TAG, "Switching to balanced power");
         stopLocationUpdates();
-        editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY).apply();
+        setCurrentPriorityAs(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         createLocationRequest(25000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 20);
         startLocationUpdates();
+    }
+
+    private void setCurrentPriorityAs(int priority) {
+        editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, priority).apply();
     }
 
     static class LocationPriorityHandler extends Handler {
@@ -248,8 +249,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
             Log.d(TAG, "Handler Running");
             Log.d(TAG, "Current Priority: " + editor.getInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY));
             Log.d(TAG, "New Priority: " + editor.getInt(Constants.PREFS_NEW_PRIORITY, DEFAULT_PRIORITY));
-            if(editor.getInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY) !=
-                    editor.getInt(Constants.PREFS_NEW_PRIORITY, DEFAULT_PRIORITY)) {
+            if(isNewPrioritySameAsCurrentPriority()) {
                 LocationSensorService locService = mService.get();
                 switch (editor.getInt(Constants.PREFS_NEW_PRIORITY, DEFAULT_PRIORITY)) {
                     case LocationRequest.PRIORITY_NO_POWER:
@@ -265,5 +265,10 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                 }
             }
         }
+    }
+
+    private static boolean isNewPrioritySameAsCurrentPriority() {
+        return editor.getInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY) !=
+                editor.getInt(Constants.PREFS_NEW_PRIORITY, DEFAULT_PRIORITY);
     }
 }
