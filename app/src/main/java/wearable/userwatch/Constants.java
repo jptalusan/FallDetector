@@ -48,4 +48,5 @@ public class Constants {
     //SHARED PREFS
     public static final String PREFS_NEW_PRIORITY = "PRIORITY_LEVEL";
     public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
+    public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartwatch.sos";
 }
