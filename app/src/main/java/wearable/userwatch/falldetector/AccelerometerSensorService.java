@@ -42,6 +42,9 @@ public class AccelerometerSensorService extends IntentService implements SensorE
     private float old_x = 0.0f;
     private float old_y = 0.0f;
     private float old_z = 0.0f;
+    
+    private String appname = "";
+    private SharedPreferences editor;
 
     public AccelerometerSensorService() {
         super("AccelerometerSensorService");
@@ -53,6 +56,8 @@ public class AccelerometerSensorService extends IntentService implements SensorE
         accelerometerData = new ArrayList<>();
         potentiallyFallenData = new ArrayList<>();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        appname = getApplicationContext().getResources().getString(R.string.app_name);
+        editor = getApplicationContext().getSharedPreferences(appname, Context.MODE_PRIVATE);
 
 //        if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
 //            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -120,50 +125,52 @@ public class AccelerometerSensorService extends IntentService implements SensorE
             old_z = currentAccelerationValues[2];
         }
 
-        if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.FALL_DETECT_WINDOW_SECS) && !potentiallyFallen) {
-            AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
-            accelerometerData.add(a);
-//            Log.d(DEBUG_TAG, a.toString() + "/" + a.getNormalizedAcceleration());
-        } else if (potentiallyFallen) {
-//            Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
-            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
+        if (editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 0) == 0) {
+            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.FALL_DETECT_WINDOW_SECS) && !potentiallyFallen) {
                 AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
                 accelerometerData.add(a);
-            } else { //Not moving past MOVE_THRESHOLD after 10 seconds
-                Log.d(DEBUG_TAG, "End of 10 second potential fall cycle");
-                if (Utils.getAverageNormalizedAcceleration(accelerometerData) > Constants.MOVE_THRESHOLD) {
-                    Log.d(DEBUG_TAG, "Ave: " + Utils.getAverageNormalizedAcceleration(accelerometerData));
-                    potentiallyFallen = false;
-                    Log.d(DEBUG_TAG, "False alarm");
-                    accelerometerData.clear();
-                } else {
-                    actuallyFallen = true;
-                    //TODO: Prompt user if they are ok.
-                    Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
-                    sensorManager.unregisterListener(this);
-                    //TODO: Log potentiallyFallenData
-                    SQLiteDataLogger logger = new SQLiteDataLogger(this);
-                    logger.execute(accelerometerData);
-                    logger.delegate = this;
+    //            Log.d(DEBUG_TAG, a.toString() + "/" + a.getNormalizedAcceleration());
+            } else if (potentiallyFallen) {
+    //            Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
+                if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
+                    AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
+                    accelerometerData.add(a);
+                } else { //Not moving past MOVE_THRESHOLD after 10 seconds
+                    Log.d(DEBUG_TAG, "End of 10 second potential fall cycle");
+                    if (Utils.getAverageNormalizedAcceleration(accelerometerData) > Constants.MOVE_THRESHOLD) {
+                        Log.d(DEBUG_TAG, "Ave: " + Utils.getAverageNormalizedAcceleration(accelerometerData));
+                        potentiallyFallen = false;
+                        Log.d(DEBUG_TAG, "False alarm");
+                        accelerometerData.clear();
+                    } else {
+                        actuallyFallen = true;
+                        //TODO: Prompt user if they are ok.
+                        Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
+                        sensorManager.unregisterListener(this);
+                        //TODO: Log potentiallyFallenData
+                        SQLiteDataLogger logger = new SQLiteDataLogger(this);
+                        logger.execute(accelerometerData);
+                        logger.delegate = this;
+                    }
+                    potentiallyFallenData.clear();
                 }
-                potentiallyFallenData.clear();
-            }
-        } else if (actuallyFallen) {
-            sensorManager.unregisterListener(this);
-            Log.d(DEBUG_TAG, "Call contacts");
-        } else {
-            Log.d(DEBUG_TAG, "End of 5 second detection cycle.");
-            potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, Constants.FALL_THRESHOLD);
-            Log.d(DEBUG_TAG, "potential fall count: " + potentialFallCounter);
-            if (potentialFallCounter > Constants.LOWER_LIMIT_PEAK_COUNT && potentialFallCounter < Constants.UPPER_LIMIT_PEAK_COUNT) {
-                potentiallyFallenData = accelerometerData;
-                potentiallyFallen = true;
-                Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
+            } else if (actuallyFallen) {
+                sensorManager.unregisterListener(this);
+                Log.d(DEBUG_TAG, "Call contacts");
             } else {
-                Log.d(DEBUG_TAG, "No fall detected");
+                Log.d(DEBUG_TAG, "End of 5 second detection cycle.");
+                potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, Constants.FALL_THRESHOLD);
+                Log.d(DEBUG_TAG, "potential fall count: " + potentialFallCounter);
+                if (potentialFallCounter > Constants.LOWER_LIMIT_PEAK_COUNT && potentialFallCounter < Constants.UPPER_LIMIT_PEAK_COUNT) {
+                    potentiallyFallenData = accelerometerData;
+                    potentiallyFallen = true;
+                    Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
+                } else {
+                    Log.d(DEBUG_TAG, "No fall detected");
+                }
+                potentialFallCounter = 0;
+                accelerometerData.clear();
             }
-            potentialFallCounter = 0;
-            accelerometerData.clear();
         }
     }
 
@@ -175,7 +182,7 @@ public class AccelerometerSensorService extends IntentService implements SensorE
     @Override
     public void processIsFinished(boolean output) {
         if (output) {
-            resetFallDetection();
+            // resetFallDetection();
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(DEBUG_TAG, "Successfully saved to DB.");
         } else {
@@ -201,8 +208,8 @@ public class AccelerometerSensorService extends IntentService implements SensorE
         void onUserFall(int activity);
     }
 
-    private void resetFallDetection() {
-        potentiallyFallen = false;
-        actuallyFallen = false;
-    }
+    // private void resetFallDetection() {
+    //     potentiallyFallen = false;
+    //     actuallyFallen = false;
+    // }
 }
