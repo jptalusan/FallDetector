@@ -18,21 +18,24 @@ public class Constants {
     public static final String ZAXIS = "ZAXIS";
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
+    public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "SOSPROTOCOL";
 
-    //IDs
-    public static final int XAXISISORTHO = 0;
-    public static final int YAXISISORTHO = 1;
-    public static final int ZAXISISORTHO = 2;
-
-    //SETTINGS
+    //FALL DETECTOR SETTINGS
     public static final double FALL_THRESHOLD = 18.0; //FOR BOTH LINEAR and ACCELEROMETER
     public static final double MOVE_THRESHOLD = 0.95; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
-    public static final double WALK_THRESHOLD = 5.0;
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
     public static final long FALL_DETECT_WINDOW_SECS = 5;
     public static final long VERIFY_FALL_DETECT_WINDOW_SECS = 9;
-    public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 9;
+    public static final int SOS_PROTOCOL_ACTIVITY_ON = 1;
+    public static final int SOS_PROTOCOL_ACTIVITY_OFF = 0;
+
+    //ACTIVITY PROTOCOL SETTINGS
+    public static final double GRAVITY = 9.81;
+    public static final double EIGHTYPERCENT = 0.80;
+    public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 59; //59
+    public static final double ACTIVE_THRESHOLD = 1.0;
+    public static final double VERY_ACTIVE_THRESHOLD = 3.0;
 
     //GEOFENCE
     public static final float FENCE_RADIUS_IN_METERS = 100f;

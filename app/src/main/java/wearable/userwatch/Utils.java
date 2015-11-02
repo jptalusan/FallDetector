@@ -7,6 +7,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import wearable.userwatch.falldetector.AccelerometerData;
@@ -47,29 +48,17 @@ public class Utils {
         return average / a.size();
     }
 
-    public static int identifyWhichAxisIsOrthogonalToGravity(ArrayList<AccelerometerData> a) {
-        float xAverage = 0.0f;
-        float yAverage = 0.0f;
-        float zAverage = 0.0f;
-
+    public static double[] getAverageAccelerationPerAxis(ArrayList<AccelerometerData> a) {
+        double[] output = {0.0, 0.0, 0.0};
         for (AccelerometerData data : a) {
-            xAverage += Math.abs(data.getX());
-            yAverage += Math.abs(data.getY());
-            zAverage += Math.abs(data.getZ());
+            output[0] += data.getX();
+            output[1] += data.getY();
+            output[2] += data.getZ();
         }
-
-        xAverage = xAverage / a.size();
-        yAverage = yAverage / a.size();
-        zAverage = zAverage / a.size();
-
-
-        if (xAverage > yAverage && xAverage > zAverage) {
-            return 0;
-        } else if (yAverage > xAverage && yAverage > zAverage) {
-            return 1;
-        } else {
-            return 2;
-        }
+        output[0] = output[0]/a.size();
+        output[1] = output[1]/a.size();
+        output[2] = output[2]/a.size();
+        return output;
     }
 
     public static boolean isNetworkAvailable(Context context) {

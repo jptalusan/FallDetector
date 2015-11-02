@@ -43,8 +43,8 @@ public class BlankActivity extends AppCompatActivity {
 
         if(checkIfLocationIsEnabled()) {
             Log.d(DEBUG_TAG, "Starting location service v1");
-            Intent reactIntent = new Intent(getApplicationContext(), ReactiveLocationProvider.class);
-            startService(reactIntent);
+//            Intent reactIntent = new Intent(getApplicationContext(), ReactiveLocationProvider.class);
+//            startService(reactIntent);
             startAlarmManager();
         }
     }
