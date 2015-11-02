@@ -18,7 +18,6 @@ public class Constants {
     public static final String ZAXIS = "ZAXIS";
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
-    public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "SOSPROTOCOL";
 
     //FALL DETECTOR SETTINGS
     public static final double FALL_THRESHOLD = 18.0; //FOR BOTH LINEAR and ACCELEROMETER
