@@ -17,7 +17,6 @@ import android.app.AlertDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import pl.charmas.android.reactivelocation.ReactiveLocationProvider;
 import wearable.userwatch.falldetector.AccelerometerSensorService;
 import wearable.userwatch.accelerometer.R;
 import wearable.userwatch.geofence.LocationSensorService;
@@ -43,8 +42,6 @@ public class BlankActivity extends AppCompatActivity {
 
         if(checkIfLocationIsEnabled()) {
             Log.d(DEBUG_TAG, "Starting location service v1");
-//            Intent reactIntent = new Intent(getApplicationContext(), ReactiveLocationProvider.class);
-//            startService(reactIntent);
             startAlarmManager();
         }
     }

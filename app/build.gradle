@@ -24,9 +24,4 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.google.android.gms:play-services-location:8.1.0'
     compile 'com.google.android.gms:play-services-maps:8.1.0'
-    compile 'pl.charmas.android:android-reactive-location:0.8@aar'
-    compile 'io.reactivex:rxjava:1.0.14'
-
-    //RxAndroid or NotRxAndroid is not required by library
-    compile 'io.reactivex:rxandroid:0.25.0'
 }

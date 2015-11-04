@@ -34,11 +34,7 @@
             android:enabled="true"
             android:exported="true">
         </service>
-        <service
-            android:name="wearable.userwatch.geofence.ReactiveLocationProvider"
-            android:enabled="true"
-            android:exported="true">
-        </service>
+
         <receiver
             android:name="wearable.userwatch.networklistener.NetworkChangeReceiver"
             android:label="NetworkChangeReceiver" >

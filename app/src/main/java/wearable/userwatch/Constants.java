@@ -35,6 +35,11 @@ public class Constants {
     public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 59; //59
     public static final double ACTIVE_THRESHOLD = 1.0;
     public static final double VERY_ACTIVE_THRESHOLD = 3.0;
+    public static final int ACT_PROTOCOL_GATHERING_DATA = 0;
+    public static final int ACT_PROTOCOL_ACTIVE_VERY_ACTIVE = 1;
+    public static final int ACT_PROTOCOL_ACTIVE_ACTIVE = 2;
+    public static final int ACT_PROTOCOL_INACTIVE_HORIZONTAL = 3;
+    public static final int ACT_PROTOCOL_INACTIVE_VERTICAL = 4;
 
     //GEOFENCE
     public static final float FENCE_RADIUS_IN_METERS = 100f;

@@ -17,47 +17,21 @@ public class AccelerometerData {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public float getX() {
         return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
     }
 
     public float getY() {
         return y;
     }
 
-    public void setY(float y) {
-        this.y = y;
-    }
-
     public float getZ() {
         return z;
-    }
-
-    public void setZ(float z) {
-        this.z = z;
     }
 
     public double getNormalizedAcceleration() {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
     }
-
-//    @Override
-//    public String toString() {
-//        return "AccelerometerData{" +
-//                "timestamp=" + timestamp +
-//                ", x=" + x +
-//                ", y=" + y +
-//                ", z=" + z +
-//                '}';
-//    }
 
     @Override
     public String toString() {

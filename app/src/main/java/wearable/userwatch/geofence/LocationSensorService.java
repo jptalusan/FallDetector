@@ -201,8 +201,6 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                 }
             }
         } else {
-            //TODO: just add the network thing here, add sharedprefs entry in broadcast receiver and read it here to see if it changed network
-            //TODO: or place network thing outside if statement
             Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
         }
 
