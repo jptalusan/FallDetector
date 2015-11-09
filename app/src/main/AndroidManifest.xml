@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
 
     <application
         android:allowBackup="true"
@@ -34,7 +39,10 @@
             android:enabled="true"
             android:exported="true">
         </service>
-
+        <service android:name="wearable.userwatch.memorymodule.AlarmService">
+            android:enabled="true"
+            android:exported="true">
+        </service>
         <receiver
             android:name="wearable.userwatch.networklistener.NetworkChangeReceiver"
             android:label="NetworkChangeReceiver" >
@@ -42,6 +50,12 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.net.wifi.STATE_CHANGE"/>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <!-- Will not be called unless the application explicitly enables it -->
+        <receiver android:name="wearable.userwatch.memorymodule.DeviceBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
     </application>

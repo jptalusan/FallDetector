@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 import android.app.AlertDialog;
 
@@ -20,6 +22,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import wearable.userwatch.falldetector.AccelerometerSensorService;
 import wearable.userwatch.accelerometer.R;
 import wearable.userwatch.geofence.LocationSensorService;
+import wearable.userwatch.memorymodule.Alarm;
 
 public class BlankActivity extends AppCompatActivity {
     private static String DEBUG_TAG = "Activity";
@@ -44,6 +47,13 @@ public class BlankActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, "Starting location service v1");
             startAlarmManager();
         }
+
+        startAlarmDemo();
+    }
+
+    private void startAlarmDemo() {
+        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
+        alarm.startAlarm();
     }
 
     @Override

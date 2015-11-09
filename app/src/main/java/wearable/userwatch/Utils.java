@@ -25,7 +25,8 @@ public class Utils {
     //TODO: Probably better to just insert the data as normalized instead of normalizing here
     public static int getNumberOfPeaksThatExceedThreshold(ArrayList<AccelerometerData> a, double FALL_THRESHOLD) {
         int numberOfPeaksThatExceedThreshold = 0;
-        for (int i = 1; i < a.size() - 1; ++i) {
+        int arraySize = a.size();
+        for (int i = 1; i < arraySize - 1; ++i) {
             double prev = a.get(i - 1).getNormalizedAcceleration();
             double curr = a.get(i).getNormalizedAcceleration();
             double next = a.get(i + 1).getNormalizedAcceleration();
