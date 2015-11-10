@@ -67,4 +67,14 @@ public class Constants {
     public static final int ALARM_FREQUENCY_CUSTOM = -1;
     public static final String ALARM_WAKE = "WAKE";
 
+    //MEMORIES JSON
+    public static final String MEMORIES = "memories";
+    public static final String MEMORIES_MEMORYID = "MemoryId";
+    public static final String MEMORIES_MEMORYNAME = "MemoryName";
+    public static final String MEMORIES_FKUSERID = "fkUserId";
+    public static final String MEMORIES_MEMORYFREQ = "MemoryFreq";
+    public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
+    public static final String MEMORIES_MEMORYDATES = "MemoryDates";
+
+
 }

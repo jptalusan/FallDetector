@@ -19,6 +19,11 @@ import android.app.AlertDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import org.json.JSONException;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import wearable.userwatch.falldetector.AccelerometerSensorService;
 import wearable.userwatch.accelerometer.R;
 import wearable.userwatch.geofence.LocationSensorService;
@@ -48,12 +53,66 @@ public class BlankActivity extends AppCompatActivity {
             startAlarmManager();
         }
 
-        startAlarmDemo();
+        try {
+            startAlarmDemo();
+        } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "Error", e);
+        }
     }
 
-    private void startAlarmDemo() {
-        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
-        alarm.startAlarm();
+    private void startAlarmDemo() throws JSONException {
+
+        ArrayList<Alarm> alarms = Alarm.parseAlarmString("{\n" +
+                "\"memories\": [\n" +
+                "{\n" +
+                "\"MemoryId\": 1,\n" +
+                "\"MemoryName\": \"Wake\",\n" +
+                "\"fkUserId\": 4,\n" +
+                "\"MemoryFreq\": 1,\n" +
+                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
+                "\"MemoryDates\": \"Sat Nov 07 2015 15:26:36 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
+                "},\n" +
+                "{\n" +
+                "\"MemoryId\": 4,\n" +
+                "\"MemoryName\": \"Sleep\",\n" +
+                "\"fkUserId\": 4,\n" +
+                "\"MemoryFreq\": 2,\n" +
+                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
+                "\"MemoryDates\": null\n" +
+                "},\n" +
+                "{\n" +
+                "\"MemoryId\": 5,\n" +
+                "\"MemoryName\": \"Drink medicine\",\n" +
+                "\"fkUserId\": 4,\n" +
+                "\"MemoryFreq\": 1,\n" +
+                "\"MemoryInstructions\": \"check quantity left\",\n" +
+                "\"MemoryDates\": null\n" +
+                "},\n" +
+                "{\n" +
+                "\"MemoryId\": 6,\n" +
+                "\"MemoryName\": \"TEST the system Konrad\",\n" +
+                "\"fkUserId\": 4,\n" +
+                "\"MemoryFreq\": 2,\n" +
+                "\"MemoryInstructions\": \"Test, schould be possible to run more than once a day with different set times.\",\n" +
+                "\"MemoryDates\": null\n" +
+                "},\n" +
+                "{\n" +
+                "\"MemoryId\": 10,\n" +
+                "\"MemoryName\": \"Eat breakfast\",\n" +
+                "\"fkUserId\": 4,\n" +
+                "\"MemoryFreq\": 1,\n" +
+                "\"MemoryInstructions\": \"Take a nap. Recharge smart guard.\",\n" +
+                "\"MemoryDates\": \"Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800\"\n" +
+                "}\n" +
+                "]\n" +
+                "}");
+        for(Alarm a : alarms) {
+            Log.d(DEBUG_TAG, a.toString());
+        }
+
+        alarms.get(0).startAlarm(getApplicationContext());
+//        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
+//        alarm.startAlarm();
     }
 
     @Override
