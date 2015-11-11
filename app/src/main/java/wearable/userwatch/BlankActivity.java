@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.provider.Settings;
@@ -12,9 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 import android.app.AlertDialog;
+import android.view.View.OnClickListener;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -34,6 +38,8 @@ public class BlankActivity extends AppCompatActivity {
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
     private SharedPreferences editor;
     private String appname;
+    private Button cancelAlarm;
+    private Alarm alarmSample;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +49,27 @@ public class BlankActivity extends AppCompatActivity {
         Log.d("TAG", "Start");
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
-        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
-        startService(intent);
 
-        checkPlayServices();
+        cancelAlarm = (Button) findViewById(R.id.cancelAlarm);
 
-        if(checkIfLocationIsEnabled()) {
-            Log.d(DEBUG_TAG, "Starting location service v1");
-            startAlarmManager();
-        }
+        cancelAlarm.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                alarmSample.stopAlarm(getApplicationContext());
+            }
+
+        });
+
+//        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
+//        startService(intent);
+//
+//        checkPlayServices();
+//
+//        if(checkIfLocationIsEnabled()) {
+//            Log.d(DEBUG_TAG, "Starting location service v1");
+//            startAlarmManager();
+//        }
 
         try {
             startAlarmDemo();
@@ -110,7 +128,10 @@ public class BlankActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, a.toString());
         }
 
-        alarms.get(0).startAlarm(getApplicationContext());
+        alarmSample = alarms.get(0);
+
+        alarmSample.startAlarm(getApplicationContext());
+//        alarms.get(1).startAlarm(getApplicationContext());
 //        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
 //        alarm.startAlarm();
     }

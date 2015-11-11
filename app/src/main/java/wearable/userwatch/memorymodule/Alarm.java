@@ -4,6 +4,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -11,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,31 +25,28 @@ import wearable.userwatch.Constants;
 /**
  * Created by talusan on 11/9/2015.
  */
-public class Alarm {
+public class Alarm implements Parcelable {
     private static final String TAG = "AlarmObject";
-    private String alarmMessage;
-    private Calendar cal;
-    private String frequency;
-    private Context context;
     public String MemoryId = "";
     public String MemoryName = "";
     public String fkUserId = "";
     public int MemoryFreq = 0;
     public String MemoryInstructions = "";
-    public ArrayList<String> memoryDates;
+//    public ArrayList<String> memoryDates;
+    public String datesArray = "";
 
     public Alarm(String MemoryId,
                  String MemoryName,
                  String fkUserId,
                  int MemoryFreq,
                  String MemoryInstructions,
-                 ArrayList<String> memoryDates) {
+                 String datesArray) {
         this.MemoryId = MemoryId;
         this.MemoryName = MemoryName;
         this.fkUserId = fkUserId;
         this.MemoryFreq = MemoryFreq;
         this.MemoryInstructions = MemoryInstructions;
-        this.memoryDates = memoryDates;
+        this.datesArray = datesArray;
     }
 
     public static ArrayList<Alarm> parseAlarmString(String alarmString) throws JSONException {
@@ -70,16 +70,15 @@ public class Alarm {
             MemoryInstructions = memoryObject.getString(Constants.MEMORIES_MEMORYINSTRUCTIONS);
             datesArray = memoryObject.getString(Constants.MEMORIES_MEMORYDATES);
 
-            if(!datesArray.equals("null")) {
-                MemoryDates = new  ArrayList<String>(Arrays.asList(datesArray.split(",")));
-            }
+//            if(!datesArray.equals("null")) {
+//                MemoryDates = new  ArrayList<String>(Arrays.asList(datesArray.split(",")));
+//            }
 
             Alarm alarmMessage = new Alarm
                     (MemoryId, MemoryName, fkUserId,
-                            MemoryFreq, MemoryInstructions, MemoryDates);
+                            MemoryFreq, MemoryInstructions, datesArray);
 
             alarms.add(alarmMessage);
-
         }
         return alarms;
     }
@@ -88,27 +87,30 @@ public class Alarm {
         return true;
     }
 
-    public String getAlarmMessage() {
-        return alarmMessage;
-    }
 
     public void startAlarm(Context context) {
         PendingIntent pendingIntent;
         AlarmManager manager;
         Intent alarmIntent = new Intent(context, AlarmService.class);
-        alarmIntent.putExtra("Message", alarmMessage);
+        alarmIntent.putExtra(Constants.ALARM, this);
+        Log.d(TAG, "Starting alarm: " + MemoryId);
         pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         //TODO: if once only, use setexact, if repeating set corresponding interval in setRepeating
-        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, 5000, pendingIntent);
+//        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, 5000, pendingIntent);
+        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, pendingIntent);
         Log.d(TAG, "Alarm is started");
     }
 
-    public void stopAlarm() {
+
+
+
+    public void stopAlarm(Context context) {
         PendingIntent pendingIntent;
         AlarmManager manager;
         Intent alarmIntent = new Intent(context, AlarmService.class);
-        alarmIntent.putExtra("Message", alarmMessage);
+        alarmIntent.putExtra(Constants.ALARM, this);
+        Log.d(TAG, "Stopping alarm: " + MemoryId);
         pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         manager.cancel(pendingIntent);
@@ -148,7 +150,42 @@ public class Alarm {
                 ", fkUserId='" + fkUserId + '\'' +
                 ", MemoryFreq=" + MemoryFreq +
                 ", MemoryInstructions='" + MemoryInstructions + '\'' +
-                ", memoryDates=" + memoryDates +
+                ", memoryDates=" + datesArray +
                 '}';
+    }
+
+    // Parcelling part
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Alarm createFromParcel(Parcel in) {
+            return new Alarm(in);
+        }
+
+        public Alarm[] newArray(int size) {
+            return new Alarm[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    private Alarm(Parcel in) {
+        MemoryId = in.readString();
+        MemoryName = in.readString();
+        fkUserId = in.readString();
+        MemoryFreq = in.readInt();
+        MemoryInstructions = in.readString();
+        datesArray = in.readString();
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(MemoryId);
+        dest.writeString(MemoryName);
+        dest.writeString(fkUserId);
+        dest.writeInt(MemoryFreq);
+        dest.writeString(MemoryInstructions);
+        dest.writeString(datesArray);
     }
 }

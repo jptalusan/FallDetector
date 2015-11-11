@@ -3,8 +3,11 @@ package wearable.userwatch.memorymodule;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
+
+import wearable.userwatch.Constants;
 
 /**
  * Created by talusan on 11/9/2015.
@@ -26,13 +29,16 @@ public class AlarmService extends IntentService {
 
     @Override
     protected  void onHandleIntent(Intent intent) {
-        String message = intent.getStringExtra("Message");
-        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-        wakeLock.acquire();
-        //TODO: Perform required tasks here (alarm phone show notification)
+        Bundle data = intent.getExtras();
+        Alarm alarm = data.getParcelable(Constants.ALARM);
 
-        Log.d(TAG, "onHandleIntent: " + message);
+        Log.d(TAG, "AlarmId: " + alarm.getMemoryId());
+
+        //TODO: Add checking if alarm notification activity is currently open.
+        Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
+        alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        alarmIntent.putExtras(intent);
+        getApplication().startActivity(alarmIntent);
     }
 
     @Override

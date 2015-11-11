@@ -66,6 +66,7 @@ public class Constants {
     public static final int ALARM_FREQUENCY_HOURLY = 5;
     public static final int ALARM_FREQUENCY_CUSTOM = -1;
     public static final String ALARM_WAKE = "WAKE";
+    public static final String ALARM = "ALARM";
 
     //MEMORIES JSON
     public static final String MEMORIES = "memories";
