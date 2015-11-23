@@ -56,6 +56,8 @@ public class Constants {
     public static final String PREFS_NEW_PRIORITY = "PRIORITY_LEVEL";
     public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartwatch.sos";
+    public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
+    public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
 
     //ALARMS
     public static final int ALARM_FREQUENCY_ONCE = 0;
@@ -65,7 +67,7 @@ public class Constants {
     public static final int ALARM_FREQUENCY_YEARLY = 4;
     public static final int ALARM_FREQUENCY_HOURLY = 5;
     public static final int ALARM_FREQUENCY_CUSTOM = -1;
-    public static final String ALARM_WAKE = "WAKE";
+    public static final String ALARM_WAKE = "Wake";
     public static final String ALARM = "ALARM";
 
     //MEMORIES JSON

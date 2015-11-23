@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
@@ -20,6 +21,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import wearable.userwatch.Constants;
@@ -40,6 +44,9 @@ public class AlarmNotificationActivity extends Activity {
     private PowerManager.WakeLock mWakeLock;
     private Ringtone r;
     private static final int WAKELOCK_TIMEOUT = 60 * 1000;
+    private String memoryName = "";
+    private SharedPreferences editor;
+    private String appname;
 
     public static AlarmNotificationActivity instance() {
         return inst;
@@ -55,14 +62,33 @@ public class AlarmNotificationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_notification);
+
+        Log.d("TAG", "Start Alarm Activity");
+        appname = getResources().getString(R.string.app_name);
+        editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
+
         stopAlarm = (Button) findViewById(R.id.stopAlarm);
         alarmMessage = (TextView) findViewById(R.id.alarmMessage);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Bundle data = getIntent().getExtras();
         alarm = data.getParcelable(Constants.ALARM);
-        alarmMessage.setText(alarm.getMemoryInstructions());
-        memoryId = alarm.getMemoryId();
+        if(alarm != null) {
+            alarmMessage.setText(alarm.getMemoryInstructions());
+            memoryId = alarm.getMemoryId();
+            memoryName = alarm.getMemoryName();
+        }
+
+        if(memoryName.equals(Constants.ALARM_WAKE)) {
+            try {
+                ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
+                Alarm.cancelAllAlarms(getApplicationContext(), alarms);
+                Log.d(TAG, "cancelling all alarms");
+                //TODO: trigger another alarm 30 minutes from now to get the measurement of activity counter and erase it after analysis
+            } catch (JSONException e) {
+
+            }
+        }
 
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         if (alarmUri == null) {

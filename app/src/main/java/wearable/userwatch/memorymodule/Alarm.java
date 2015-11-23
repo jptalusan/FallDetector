@@ -49,6 +49,7 @@ public class Alarm implements Parcelable {
         this.datesArray = datesArray;
     }
 
+    //TODO: Parse alarm correctly, see notebook. (all exact one day) no repeating
     public static ArrayList<Alarm> parseAlarmString(String alarmString) throws JSONException {
         ArrayList<Alarm> alarms = new ArrayList<>();
         String MemoryId = "";
@@ -102,9 +103,6 @@ public class Alarm implements Parcelable {
         Log.d(TAG, "Alarm is started");
     }
 
-
-
-
     public void stopAlarm(Context context) {
         PendingIntent pendingIntent;
         AlarmManager manager;
@@ -116,6 +114,19 @@ public class Alarm implements Parcelable {
         manager.cancel(pendingIntent);
         pendingIntent.cancel();
         Log.d(TAG, "Alarm is stopped");
+    }
+
+    public static void cancelAllAlarms(Context context, ArrayList<Alarm> alarmsArray) {
+        for(Alarm alarm : alarmsArray) {
+            Log.d(TAG, "Cancelling: " + alarm.getMemoryId());
+            alarm.stopAlarm(context);
+        }
+    }
+
+    public static void startAllAlarms(Context context, ArrayList<Alarm> alarmsArray) {
+        for(Alarm alarm : alarmsArray) {
+            alarm.startAlarm(context);
+        }
     }
 
     public void resetAlarm() {

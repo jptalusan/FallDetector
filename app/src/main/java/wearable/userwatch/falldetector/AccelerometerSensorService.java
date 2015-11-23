@@ -127,15 +127,19 @@ public class AccelerometerSensorService extends IntentService implements SensorE
                     break;
                 case Constants.ACT_PROTOCOL_ACTIVE_ACTIVE:
                     Log.d(DEBUG_TAG, "Active: Active");
+                    editor.edit().putInt(Constants.ACTIVE_COUNTER, (editor.getInt(Constants.ACTIVE_COUNTER, 0) + 1)).apply();
                     break;
                 case Constants.ACT_PROTOCOL_ACTIVE_VERY_ACTIVE:
                     Log.d(DEBUG_TAG, "Active: Very Active");
+                    editor.edit().putInt(Constants.ACTIVE_COUNTER, (editor.getInt(Constants.ACTIVE_COUNTER, 0) + 1)).apply();
                     break;
                 case Constants.ACT_PROTOCOL_INACTIVE_HORIZONTAL:
                     Log.d(DEBUG_TAG, "Inactive: Horizontal");
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER, (editor.getInt(Constants.INACTIVE_COUNTER, 0) + 1)).apply();
                     break;
                 case Constants.ACT_PROTOCOL_INACTIVE_VERTICAL:
                     Log.d(DEBUG_TAG, "Inactive: Vertical");
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER, (editor.getInt(Constants.INACTIVE_COUNTER, 0) + 1)).apply();
                     break;
                 default:
                     break;

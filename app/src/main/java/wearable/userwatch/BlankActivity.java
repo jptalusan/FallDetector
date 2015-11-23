@@ -61,15 +61,15 @@ public class BlankActivity extends AppCompatActivity {
 
         });
 
-//        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
-//        startService(intent);
-//
-//        checkPlayServices();
-//
-//        if(checkIfLocationIsEnabled()) {
-//            Log.d(DEBUG_TAG, "Starting location service v1");
-//            startAlarmManager();
-//        }
+        Intent intent = new Intent(getApplicationContext(), AccelerometerSensorService.class);
+        startService(intent);
+
+        checkPlayServices();
+
+        if(checkIfLocationIsEnabled()) {
+            Log.d(DEBUG_TAG, "Starting location service v1");
+            startAlarmManager();
+        }
 
         try {
             startAlarmDemo();
@@ -79,8 +79,7 @@ public class BlankActivity extends AppCompatActivity {
     }
 
     private void startAlarmDemo() throws JSONException {
-
-        ArrayList<Alarm> alarms = Alarm.parseAlarmString("{\n" +
+        editor.edit().putString("SampleAlarmString", "{\n" +
                 "\"memories\": [\n" +
                 "{\n" +
                 "\"MemoryId\": 1,\n" +
@@ -123,7 +122,8 @@ public class BlankActivity extends AppCompatActivity {
                 "\"MemoryDates\": \"Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800\"\n" +
                 "}\n" +
                 "]\n" +
-                "}");
+                "}").apply();
+        ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
         for(Alarm a : alarms) {
             Log.d(DEBUG_TAG, a.toString());
         }
