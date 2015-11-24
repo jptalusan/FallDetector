@@ -40,6 +40,7 @@ public class Constants {
     public static final int ACT_PROTOCOL_ACTIVE_ACTIVE = 2;
     public static final int ACT_PROTOCOL_INACTIVE_HORIZONTAL = 3;
     public static final int ACT_PROTOCOL_INACTIVE_VERTICAL = 4;
+    public static final int AFTER_WAKE_TIMER = 60 * 30 * 1000;
 
     //GEOFENCE
     public static final float FENCE_RADIUS_IN_METERS = 100f;
@@ -68,6 +69,8 @@ public class Constants {
     public static final int ALARM_FREQUENCY_HOURLY = 5;
     public static final int ALARM_FREQUENCY_CUSTOM = -1;
     public static final String ALARM_WAKE = "Wake";
+    public static final String ALARM_ACTIVITY_DETECT = "Detect_Activity";
+    public static final int ALARM_ACTIVITY_DETECT_ID = 1001;
     public static final String ALARM = "ALARM";
 
     //MEMORIES JSON

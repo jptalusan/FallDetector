@@ -87,7 +87,7 @@ public class BlankActivity extends AppCompatActivity {
                 "\"fkUserId\": 4,\n" +
                 "\"MemoryFreq\": 1,\n" +
                 "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
-                "\"MemoryDates\": \"Sat Nov 07 2015 15:26:36 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
+                "\"MemoryDates\": \"Wed Nov 25 2015 01:10:00 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
                 "},\n" +
                 "{\n" +
                 "\"MemoryId\": 4,\n" +
@@ -128,9 +128,12 @@ public class BlankActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, a.toString());
         }
 
-        alarmSample = alarms.get(0);
+        Alarm.cancelAllAlarms(getApplicationContext(), alarms);
 
+//        Alarm.startAllAlarms(getApplicationContext(), alarms);
+        alarmSample = alarms.get(0);
         alarmSample.startAlarm(getApplicationContext());
+
 //        alarms.get(1).startAlarm(getApplicationContext());
 //        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
 //        alarm.startAlarm();

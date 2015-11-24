@@ -168,14 +168,14 @@ public class AccelerometerSensorService extends IntentService implements SensorE
     private boolean hasUserFallen(float[] rawAcceleration, float[] processedAcceleration) {
         boolean hasUserFallen = false;
         if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.FALL_DETECT_WINDOW_SECS) && !potentiallyFallen) {
-            AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]);
+            AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]);
             accelerometerData.add(a);
         } else if (potentiallyFallen) {
             Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
             if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
-                AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), x, y, z);
+                AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), x, y, z);
                 accelerometerData.add(a);
-                AccelerometerData raw = new AccelerometerData(Utils.getCurrentTimeStampInMillis(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]);
+                AccelerometerData raw = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]);
                 Log.d(DEBUG_TAG, "Raw:" + rawAcceleration[0] + "," + rawAcceleration[1] + "," + rawAcceleration[2]);
                 potentiallyFallenRawData.add(raw);
             } else { //Not moving past MOVE_THRESHOLD after 10 seconds
@@ -215,8 +215,8 @@ public class AccelerometerSensorService extends IntentService implements SensorE
     private int getCurrentUserActivity(float[] rawAcceleration, float[] processedAcceleration) {
         int currentActivity;
         if (!Utils.isAccelerometerArrayExceedingTimeLimit(activityProtocolRawData, Constants.CHARACTERIZE_ACTIVITY_WINDOW_SECS)) {
-            activityProtocolRawData.add(new AccelerometerData(Utils.getCurrentTimeStampInMillis(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]));
-            activityProtocolData.add(new AccelerometerData(Utils.getCurrentTimeStampInMillis(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]));
+            activityProtocolRawData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]));
+            activityProtocolData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]));
             currentActivity = Constants.ACT_PROTOCOL_GATHERING_DATA;
         } else { //End of activity protocol sensor window (CHARACTERIZE_ACTIVITY_WINDOW_SECS)
             Log.d(DEBUG_TAG, "End of characterizing activity window");

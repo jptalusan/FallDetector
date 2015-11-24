@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -25,8 +26,10 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import wearable.userwatch.Constants;
+import wearable.userwatch.Utils;
 import wearable.userwatch.accelerometer.R;
 
 /**
@@ -80,6 +83,7 @@ public class AlarmNotificationActivity extends Activity {
         }
 
         if(memoryName.equals(Constants.ALARM_WAKE)) {
+            startActivityDetectionAlarm();
             try {
                 ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
                 Alarm.cancelAllAlarms(getApplicationContext(), alarms);
@@ -88,6 +92,8 @@ public class AlarmNotificationActivity extends Activity {
             } catch (JSONException e) {
 
             }
+        } else {
+            Log.d(TAG, "Other types of alarm: " + memoryName);
         }
 
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -155,5 +161,16 @@ public class AlarmNotificationActivity extends Activity {
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
+    }
+
+    public void startActivityDetectionAlarm() {
+        PendingIntent pendingIntent;
+        AlarmManager manager;
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);
+        alarmIntent.putExtra(Constants.ALARM_ACTIVITY_DETECT, Constants.ALARM_ACTIVITY_DETECT);
+        pendingIntent = PendingIntent.getService(getApplicationContext(), Constants.ALARM_ACTIVITY_DETECT_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+//        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1800000, pendingIntent);
+        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + Constants.AFTER_WAKE_TIMER, pendingIntent);
     }
 }

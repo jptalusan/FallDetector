@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import wearable.userwatch.Constants;
+import wearable.userwatch.Utils;
 
 /**
  * Created by talusan on 11/9/2015.
@@ -32,21 +33,22 @@ public class Alarm implements Parcelable {
     public String fkUserId = "";
     public int MemoryFreq = 0;
     public String MemoryInstructions = "";
-//    public ArrayList<String> memoryDates;
-    public String datesArray = "";
+    public String memoryDates[] = null;
+//    public String datesArray = "";
 
     public Alarm(String MemoryId,
                  String MemoryName,
                  String fkUserId,
                  int MemoryFreq,
                  String MemoryInstructions,
-                 String datesArray) {
+                 String[] memoryDates) {
         this.MemoryId = MemoryId;
         this.MemoryName = MemoryName;
         this.fkUserId = fkUserId;
         this.MemoryFreq = MemoryFreq;
         this.MemoryInstructions = MemoryInstructions;
-        this.datesArray = datesArray;
+        this.memoryDates = memoryDates;
+//        this.datesArray = datesArray;
     }
 
     //TODO: Parse alarm correctly, see notebook. (all exact one day) no repeating
@@ -57,7 +59,7 @@ public class Alarm implements Parcelable {
         String fkUserId = "";
         int MemoryFreq = 0;
         String MemoryInstructions = "";
-        ArrayList<String> MemoryDates = new ArrayList<>();
+        String MemoryDates[] = null;
         String datesArray = "";
 
         JSONObject memoriesObject = new JSONObject(alarmString);
@@ -71,13 +73,15 @@ public class Alarm implements Parcelable {
             MemoryInstructions = memoryObject.getString(Constants.MEMORIES_MEMORYINSTRUCTIONS);
             datesArray = memoryObject.getString(Constants.MEMORIES_MEMORYDATES);
 
-//            if(!datesArray.equals("null")) {
-//                MemoryDates = new  ArrayList<String>(Arrays.asList(datesArray.split(",")));
-//            }
+            if(!datesArray.equals("null")) {
+                MemoryDates = datesArray.split(",");
+            } else {
+                MemoryDates = null;
+            }
 
             Alarm alarmMessage = new Alarm
                     (MemoryId, MemoryName, fkUserId,
-                            MemoryFreq, MemoryInstructions, datesArray);
+                            MemoryFreq, MemoryInstructions, MemoryDates);
 
             alarms.add(alarmMessage);
         }
@@ -90,17 +94,21 @@ public class Alarm implements Parcelable {
 
 
     public void startAlarm(Context context) {
-        PendingIntent pendingIntent;
-        AlarmManager manager;
-        Intent alarmIntent = new Intent(context, AlarmService.class);
-        alarmIntent.putExtra(Constants.ALARM, this);
-        Log.d(TAG, "Starting alarm: " + MemoryId);
-        pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        //TODO: if once only, use setexact, if repeating set corresponding interval in setRepeating
-//        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, 5000, pendingIntent);
-        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, pendingIntent);
-        Log.d(TAG, "Alarm is started");
+        if(memoryDates != null) {
+            PendingIntent pendingIntent;
+            AlarmManager manager;
+            Intent alarmIntent = new Intent(context, AlarmService.class);
+            alarmIntent.putExtra(Constants.ALARM, this);
+            Log.d(TAG, "Starting alarm: " + MemoryId);
+            pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+            //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            //If time is before current, it alarms immediately
+            manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDates[0]) * 1000, pendingIntent);
+        } else {
+            Log.d(TAG, "Alarm: " + MemoryId + " has no set dates.");
+        }
     }
 
     public void stopAlarm(Context context) {
@@ -113,7 +121,6 @@ public class Alarm implements Parcelable {
         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         manager.cancel(pendingIntent);
         pendingIntent.cancel();
-        Log.d(TAG, "Alarm is stopped");
     }
 
     public static void cancelAllAlarms(Context context, ArrayList<Alarm> alarmsArray) {
@@ -129,8 +136,9 @@ public class Alarm implements Parcelable {
         }
     }
 
-    public void resetAlarm() {
-
+    public void resetAlarm(Context context, ArrayList<Alarm> alarmsArray) {
+        cancelAllAlarms(context, alarmsArray);
+        startAllAlarms(context, alarmsArray);
     }
 
     public String getMemoryId() {
@@ -139,6 +147,10 @@ public class Alarm implements Parcelable {
 
     public String getMemoryName() {
         return MemoryName;
+    }
+
+    public String[] getMemoryDates() {
+        return memoryDates;
     }
 
     public String getFkUserId() {
@@ -155,13 +167,19 @@ public class Alarm implements Parcelable {
 
     @Override
     public String toString() {
-        return "Alarm{" +
-                ", MemoryId='" + MemoryId + '\'' +
+        String memoryDatesString = "";
+        if(memoryDates != null) {
+            for(String memoryDate : memoryDates) {
+                memoryDatesString += memoryDate + ", ";
+            }
+        }
+        return "Alarm{"  +
+                " MemoryId='" + MemoryId + '\'' +
                 ", MemoryName='" + MemoryName + '\'' +
                 ", fkUserId='" + fkUserId + '\'' +
                 ", MemoryFreq=" + MemoryFreq +
                 ", MemoryInstructions='" + MemoryInstructions + '\'' +
-                ", memoryDates=" + datesArray +
+                ", memoryDates=" + memoryDatesString +
                 '}';
     }
 
@@ -188,7 +206,7 @@ public class Alarm implements Parcelable {
         fkUserId = in.readString();
         MemoryFreq = in.readInt();
         MemoryInstructions = in.readString();
-        datesArray = in.readString();
+        memoryDates = in.createStringArray();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -197,6 +215,6 @@ public class Alarm implements Parcelable {
         dest.writeString(fkUserId);
         dest.writeInt(MemoryFreq);
         dest.writeString(MemoryInstructions);
-        dest.writeString(datesArray);
+        dest.writeStringArray(memoryDates);
     }
 }
