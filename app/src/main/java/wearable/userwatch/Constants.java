@@ -64,10 +64,10 @@ public class Constants {
     public static final int ALARM_FREQUENCY_ONCE = 0;
     public static final int ALARM_FREQUENCY_DAILY = 1;
     public static final int ALARM_FREQUENCY_WEEKLY = 2;
-    public static final int ALARM_FREQUENCY_MONTHLY = 3;
-    public static final int ALARM_FREQUENCY_YEARLY = 4;
-    public static final int ALARM_FREQUENCY_HOURLY = 5;
-    public static final int ALARM_FREQUENCY_CUSTOM = -1;
+//    public static final int ALARM_FREQUENCY_MONTHLY = 3;
+//    public static final int ALARM_FREQUENCY_YEARLY = 4;
+//    public static final int ALARM_FREQUENCY_HOURLY = 5;
+//    public static final int ALARM_FREQUENCY_CUSTOM = -1;
     public static final String ALARM_WAKE = "Wake";
     public static final String ALARM_ACTIVITY_DETECT = "Detect_Activity";
     public static final int ALARM_ACTIVITY_DETECT_ID = 1001;
@@ -82,5 +82,9 @@ public class Constants {
     public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
     public static final String MEMORIES_MEMORYDATES = "MemoryDates";
 
+    //TIME DATE CONSTANTS
+    public static final int DAYS_IN_A_WEEK = 7;
+    public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
+    public static final int MILLIS_IN_A_MINUTE = 60 * 1000;
 
 }

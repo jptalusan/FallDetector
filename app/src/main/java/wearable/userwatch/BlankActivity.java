@@ -85,17 +85,17 @@ public class BlankActivity extends AppCompatActivity {
                 "\"MemoryId\": 1,\n" +
                 "\"MemoryName\": \"Wake\",\n" +
                 "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 1,\n" +
+                "\"MemoryFreq\": 2,\n" +
                 "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
-                "\"MemoryDates\": \"Wed Nov 25 2015 01:10:00 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
+                "\"MemoryDates\": \"Thu Nov 05 2015 00:28:30 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
                 "},\n" +
                 "{\n" +
                 "\"MemoryId\": 4,\n" +
                 "\"MemoryName\": \"Sleep\",\n" +
                 "\"fkUserId\": 4,\n" +
                 "\"MemoryFreq\": 2,\n" +
-                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
-                "\"MemoryDates\": null\n" +
+                "\"MemoryInstructions\": \"Alarm 2: Sleep.\",\n" +
+                "\"MemoryDates\": \"Thu Nov 26 2015 00:28:11 GMT+0800\"\n" +
                 "},\n" +
                 "{\n" +
                 "\"MemoryId\": 5,\n" +
@@ -130,13 +130,13 @@ public class BlankActivity extends AppCompatActivity {
 
         Alarm.cancelAllAlarms(getApplicationContext(), alarms);
 
-//        Alarm.startAllAlarms(getApplicationContext(), alarms);
-        alarmSample = alarms.get(0);
-        alarmSample.startAlarm(getApplicationContext());
+        Alarm.startAllAlarms(getApplicationContext(), alarms);
+//        alarmSample = alarms.get(0);
+//        alarmSample.setAlarm(getApplicationContext());
 
-//        alarms.get(1).startAlarm(getApplicationContext());
+//        alarms.get(1).setAlarm(getApplicationContext());
 //        Alarm alarm = new Alarm(getApplicationContext(), "This is a test message");
-//        alarm.startAlarm();
+//        alarm.setAlarm();
     }
 
     @Override

@@ -19,7 +19,7 @@ import wearable.userwatch.accelerometer.R;
  * Created by talusan on 11/9/2015.
  * http://stackoverflow.com/questions/24724859/alarmmanager-setexact-with-wakefulbroadcastreceiver-sometimes-not-exact
  * http://developer.android.com/training/scheduling/alarms.html
- * TODO: If user has fallen (see accelerometer flag) then do not issue alarms
+ * This class handles the behaviors of all alarms in the memoryModule
  */
 public class AlarmService extends IntentService {
     private static final String TAG = "Wearable.AlarmService";
@@ -40,16 +40,17 @@ public class AlarmService extends IntentService {
     @Override
     protected  void onHandleIntent(Intent intent) {
         Bundle data = intent.getExtras();
+        //Behavior when alarm, set by Alarm.java is triggered (reminder to user)
         if(data.getParcelable(Constants.ALARM) != null) {
             Alarm alarm = data.getParcelable(Constants.ALARM);
-            Log.d(TAG, "AlarmId: " + alarm.getMemoryId());
-            if (alarm.getMemoryDates() != null) {
-                for (int i = 0; i < alarm.getMemoryDates().length; ++i) {
-                    Log.d(TAG, "MemoryDates: " + alarm.getMemoryDates()[i]);
-                    Log.d(TAG, "Day diff from today: " + Utils.getNumberOfDaysBetweenTwoTimeStamps(Utils.convertDateAndTimeToSeconds(alarm.getMemoryDates()[i]),
-                            Utils.getCurrentTimeStampInSeconds()));
-                }
-            }
+            Log.d(TAG, alarm.toString());
+//            Log.d(TAG, "AlarmId: " + alarm.getMemoryId());
+//            if (alarm.getMemoryDates() != null) {
+//                for (int i = 0; i < alarm.getMemoryDates().length; ++i) {
+//                    Log.d(TAG, "MemoryDates: " + alarm.getMemoryDates()[i]);
+//                }
+//            }
+//            Log.d(TAG, alarm.getMemoryInstructions());
             //TODO: Add checking if alarm notification activity is currently open.
             Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
             alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -57,12 +58,17 @@ public class AlarmService extends IntentService {
             getApplication().startActivity(alarmIntent);
 
         }
+
+        //Different ALARM behavior that is set when the alarm WAKE is triggered, triggers after 30 seconds
         if (data.getString(Constants.ALARM_ACTIVITY_DETECT) != null &&
                 data.getString(Constants.ALARM_ACTIVITY_DETECT).equals(Constants.ALARM_ACTIVITY_DETECT)) {
             Log.d(TAG, "Alarm Activity Detect");
             Log.d(TAG, "Activity Count: " + editor.getInt(Constants.ACTIVE_COUNTER, 0));
             if(editor.getInt(Constants.ACTIVE_COUNTER, 0) == 0) {
-                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER/1000 + " minutes.");
+                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER/Constants.MILLIS_IN_A_MINUTE + " minutes.");
+            } else {
+                editor.edit().putInt(Constants.ACTIVE_COUNTER, 0).apply();
+                editor.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();
             }
         }
     }

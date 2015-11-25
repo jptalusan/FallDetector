@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import wearable.userwatch.falldetector.AccelerometerData;
@@ -82,20 +83,29 @@ public class Utils {
     public static long convertDateAndTimeToSeconds(String dateAndtime) {
         //sample: Sat Nov 07 2015 15:26:36 GMT+0800
         long timeInMilliseconds = 0;
-        String givenDateString = "Tue Apr 23 16:08:28 GMT+0800";
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss z");
         try {
             Date mDate = sdf.parse(dateAndtime);
             timeInMilliseconds = mDate.getTime();
-            System.out.println("Date in milli :: " + timeInMilliseconds);
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return timeInMilliseconds / 1000;
     }
 
+    public static String convertMillisToDateAndTimeString(long a) {
+        Date date = new Date(a);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss z");
+        return sdf.format(date);
+   }
+
     //Abs of days between two millis (time and date)
     public static int getNumberOfDaysBetweenTwoTimeStamps(long a, long b) {
         return Math.abs((int)((a - b) / (60 * 60 * 24)));
+    }
+
+    //Abs of days between two millis (time and date)
+    public static boolean isTimeStampInThePast(long a) {
+        return a - getCurrentTimeStampInSeconds() < 0;
     }
 }

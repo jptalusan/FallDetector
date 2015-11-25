@@ -38,7 +38,6 @@ import wearable.userwatch.accelerometer.R;
 public class AlarmNotificationActivity extends Activity {
     private static final String TAG = "AlarmNotifAct";
     AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
     private Button stopAlarm;
     private static AlarmNotificationActivity inst;
     private TextView alarmMessage;
@@ -82,15 +81,16 @@ public class AlarmNotificationActivity extends Activity {
             memoryName = alarm.getMemoryName();
         }
 
+        //For different behaviors of alarms
         if(memoryName.equals(Constants.ALARM_WAKE)) {
+            //TODO: trigger another alarm 30 minutes from now to get the measurement of activity counter and erase it after analysis
             startActivityDetectionAlarm();
             try {
                 ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
                 Alarm.cancelAllAlarms(getApplicationContext(), alarms);
                 Log.d(TAG, "cancelling all alarms");
-                //TODO: trigger another alarm 30 minutes from now to get the measurement of activity counter and erase it after analysis
             } catch (JSONException e) {
-
+                Log.e(TAG, "JSONException= " + e);
             }
         } else {
             Log.d(TAG, "Other types of alarm: " + memoryName);
@@ -125,6 +125,8 @@ public class AlarmNotificationActivity extends Activity {
             @Override
             public void onClick(View v) {
                 alarm.stopAlarm(getApplicationContext());
+                //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
+                stopActivityDetectionAlarm();
                 r.stop();
                 finish();
             }
@@ -170,7 +172,17 @@ public class AlarmNotificationActivity extends Activity {
         alarmIntent.putExtra(Constants.ALARM_ACTIVITY_DETECT, Constants.ALARM_ACTIVITY_DETECT);
         pendingIntent = PendingIntent.getService(getApplicationContext(), Constants.ALARM_ACTIVITY_DETECT_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-//        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1800000, pendingIntent);
         manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + Constants.AFTER_WAKE_TIMER, pendingIntent);
+    }
+
+    public void stopActivityDetectionAlarm() {
+        PendingIntent pendingIntent;
+        AlarmManager manager;
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);
+        alarmIntent.putExtra(Constants.ALARM_ACTIVITY_DETECT, Constants.ALARM_ACTIVITY_DETECT);
+        pendingIntent = PendingIntent.getService(getApplicationContext(), Constants.ALARM_ACTIVITY_DETECT_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        manager.cancel(pendingIntent);
+        pendingIntent.cancel();
     }
 }
