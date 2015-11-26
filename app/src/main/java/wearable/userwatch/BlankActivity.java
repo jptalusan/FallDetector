@@ -79,50 +79,68 @@ public class BlankActivity extends AppCompatActivity {
     }
 
     private void startAlarmDemo() throws JSONException {
-        editor.edit().putString("SampleAlarmString", "{\n" +
-                "\"memories\": [\n" +
+        editor.edit().putString("SampleAlarmString", "{\"memories\": [\n" +
                 "{\n" +
                 "\"MemoryId\": 1,\n" +
                 "\"MemoryName\": \"Wake\",\n" +
                 "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 2,\n" +
-                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
-                "\"MemoryDates\": \"Thu Nov 05 2015 00:28:30 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
+                "\"MemoryFreq\": 1,\n" +
+                "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
+                "\"MemoryDates\": \"Fri Nov 20 2015 16:09:08 GMT+0800,Thu Nov 26 2015 23:00:00 GMT+0800,Tue Dec 01 2015 16:12:40 GMT+0800,Wed Dec 02 2015 16:12:40 GMT+0800,Fri Dec 04 2015 16:12:40 GMT+0800,Thu Nov 26 2015 22:50:00 GMT+0800\"\n" +
                 "},\n" +
                 "{\n" +
                 "\"MemoryId\": 4,\n" +
                 "\"MemoryName\": \"Sleep\",\n" +
                 "\"fkUserId\": 4,\n" +
                 "\"MemoryFreq\": 2,\n" +
-                "\"MemoryInstructions\": \"Alarm 2: Sleep.\",\n" +
-                "\"MemoryDates\": \"Thu Nov 26 2015 00:28:11 GMT+0800\"\n" +
-                "},\n" +
-                "{\n" +
-                "\"MemoryId\": 5,\n" +
-                "\"MemoryName\": \"Drink medicine\",\n" +
-                "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 1,\n" +
-                "\"MemoryInstructions\": \"check quantity left\",\n" +
-                "\"MemoryDates\": null\n" +
-                "},\n" +
-                "{\n" +
-                "\"MemoryId\": 6,\n" +
-                "\"MemoryName\": \"TEST the system Konrad\",\n" +
-                "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 2,\n" +
-                "\"MemoryInstructions\": \"Test, schould be possible to run more than once a day with different set times.\",\n" +
-                "\"MemoryDates\": null\n" +
-                "},\n" +
-                "{\n" +
-                "\"MemoryId\": 10,\n" +
-                "\"MemoryName\": \"Eat breakfast\",\n" +
-                "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 1,\n" +
-                "\"MemoryInstructions\": \"Take a nap. Recharge smart guard.\",\n" +
-                "\"MemoryDates\": \"Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800\"\n" +
+                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
+                "\"MemoryDates\": \"Thu Nov 26 2015 22:55:00 GMT+0800\"\n" +
                 "}\n" +
-                "]\n" +
-                "}").apply();
+                "]}").apply();
+//        editor.edit().putString("SampleAlarmString", "{\n" +
+//                "\"memories\": [\n" +
+//                "{\n" +
+//                "\"MemoryId\": 1,\n" +
+//                "\"MemoryName\": \"Wake\",\n" +
+//                "\"fkUserId\": 4,\n" +
+//                "\"MemoryFreq\": 2,\n" +
+//                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
+//                "\"MemoryDates\": \"Thu Nov 05 2015 00:28:30 GMT+0800,Sun Nov 08 2015 15:26:36 GMT+0800,Mon Nov 09 2015 15:26:36 GMT+0800\"\n" +
+//                "},\n" +
+//                "{\n" +
+//                "\"MemoryId\": 4,\n" +
+//                "\"MemoryName\": \"Sleep\",\n" +
+//                "\"fkUserId\": 4,\n" +
+//                "\"MemoryFreq\": 2,\n" +
+//                "\"MemoryInstructions\": \"Alarm 2: Sleep.\",\n" +
+//                "\"MemoryDates\": \"Thu Nov 26 2015 00:28:11 GMT+0800\"\n" +
+//                "},\n" +
+//                "{\n" +
+//                "\"MemoryId\": 5,\n" +
+//                "\"MemoryName\": \"Drink medicine\",\n" +
+//                "\"fkUserId\": 4,\n" +
+//                "\"MemoryFreq\": 1,\n" +
+//                "\"MemoryInstructions\": \"check quantity left\",\n" +
+//                "\"MemoryDates\": null\n" +
+//                "},\n" +
+//                "{\n" +
+//                "\"MemoryId\": 6,\n" +
+//                "\"MemoryName\": \"TEST the system Konrad\",\n" +
+//                "\"fkUserId\": 4,\n" +
+//                "\"MemoryFreq\": 2,\n" +
+//                "\"MemoryInstructions\": \"Test, schould be possible to run more than once a day with different set times.\",\n" +
+//                "\"MemoryDates\": null\n" +
+//                "},\n" +
+//                "{\n" +
+//                "\"MemoryId\": 10,\n" +
+//                "\"MemoryName\": \"Eat breakfast\",\n" +
+//                "\"fkUserId\": 4,\n" +
+//                "\"MemoryFreq\": 1,\n" +
+//                "\"MemoryInstructions\": \"Take a nap. Recharge smart guard.\",\n" +
+//                "\"MemoryDates\": \"Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800,Fri Nov 06 2015 20:05:11 GMT+0800\"\n" +
+//                "}\n" +
+//                "]\n" +
+//                "}").apply();
         ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
         for(Alarm a : alarms) {
             Log.d(DEBUG_TAG, a.toString());

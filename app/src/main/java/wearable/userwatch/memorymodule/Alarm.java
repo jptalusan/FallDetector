@@ -86,10 +86,16 @@ public class Alarm implements Parcelable {
         AlarmManager manager;
         if(MemoryDates != null) {
             //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            if(MemoryDates.length > 1)  {
+                MemoryFreq = Constants.ALARM_FREQUENCY_WEEKLY;
+            }
+
             if(MemoryFreq == Constants.ALARM_FREQUENCY_WEEKLY)  {
+                Log.d(TAG, "Dates[" + MemoryDates.length + "]:" + printMemoryDates());
                 for(String memoryDate : MemoryDates) {
                     int daysSinceMemoryDate = Utils.getNumberOfDaysBetweenTwoTimeStamps(Utils.convertDateAndTimeToSeconds(memoryDate),
                             Utils.getCurrentTimeStampInSeconds());
+                    Log.d(TAG, "memoryDate[" + MemoryId + "]: " + memoryDate + "/" + daysSinceMemoryDate);
                     if ((daysSinceMemoryDate + 1) % Constants.DAYS_IN_A_WEEK == 0) { // + 1 since alarm should be in the future
                         alarmIntent.putExtra(Constants.ALARM, this);
                         pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -105,13 +111,14 @@ public class Alarm implements Parcelable {
                             manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDate) * 1000, pendingIntent);
                             Log.d(TAG, "Setting weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(Utils.convertDateAndTimeToSeconds(memoryDate) * 1000));
                         } else {
-                            Log.d(TAG, "Weekly alarm: " + MemoryId + " will not be set yet.");
+                            Log.d(TAG, "Weekly alarm: " + MemoryId + " is today but has already expired.");
                         }
                     } else {
                         Log.d(TAG, "Weekly alarm: " + MemoryId + " will not be set yet.");
                     }
                 }
             } else { //Once or Daily
+                Log.d(TAG, "memoryDate: " + MemoryDates[0]);
                 if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(MemoryDates[0]))) { //Check if timestamp isn't in the past
                     alarmIntent.putExtra(Constants.ALARM, this);
                     pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -133,6 +140,10 @@ public class Alarm implements Parcelable {
         AlarmManager manager;
         if(MemoryDates != null) {
             //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            if(MemoryDates.length > 1)  {
+                MemoryFreq = Constants.ALARM_FREQUENCY_WEEKLY;
+            }
+
             if(MemoryFreq == Constants.ALARM_FREQUENCY_WEEKLY)  {
                 for(String memoryDate : MemoryDates) {
                     int daysSinceMemoryDate = Utils.getNumberOfDaysBetweenTwoTimeStamps(Utils.convertDateAndTimeToSeconds(memoryDate),
@@ -154,10 +165,10 @@ public class Alarm implements Parcelable {
                             manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDate) * 1000, pendingIntent);
                             Log.d(TAG, "Stopping weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(Utils.convertDateAndTimeToSeconds(memoryDate) * 1000));
                         } else {
-                            Log.d(TAG, "Weekly alarm: " + MemoryId + " was not set.");
+                            Log.d(TAG, "Weekly alarm: " + MemoryId + " was today and expired, so not set.");
                         }
                     } else {
-                        Log.d(TAG, "Weekly alarm: " + MemoryId + " was not set.");
+                        Log.d(TAG, "Weekly alarm: " + MemoryId + " was not yet set.");
                     }
                 }
             } else { //Once or Daily
@@ -169,7 +180,7 @@ public class Alarm implements Parcelable {
                     manager.cancel(pendingIntent);
                     pendingIntent.cancel();
                 } else {
-                    Log.d(TAG, "Weekly alarm: " + MemoryId + " was not set.");
+                    Log.d(TAG, "Weekly alarm: " + MemoryId + " is expired and is not set.");
                 }
             }
         } else {
@@ -217,6 +228,14 @@ public class Alarm implements Parcelable {
 
     public String getMemoryInstructions() {
         return MemoryInstructions;
+    }
+
+    public String printMemoryDates() {
+        String memoryDatesString = "";
+        for(String memoryDate : MemoryDates) {
+            memoryDatesString += memoryDate + ", ";
+        }
+        return memoryDatesString;
     }
 
     @Override
