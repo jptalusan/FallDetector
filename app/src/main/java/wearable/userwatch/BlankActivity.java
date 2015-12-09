@@ -86,15 +86,7 @@ public class BlankActivity extends AppCompatActivity {
                 "\"fkUserId\": 4,\n" +
                 "\"MemoryFreq\": 1,\n" +
                 "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
-                "\"MemoryDates\": \"Fri Nov 20 2015 16:09:08 GMT+0800,Thu Nov 26 2015 23:00:00 GMT+0800,Tue Dec 01 2015 16:12:40 GMT+0800,Wed Dec 02 2015 16:12:40 GMT+0800,Fri Dec 04 2015 16:12:40 GMT+0800,Thu Nov 26 2015 22:50:00 GMT+0800\"\n" +
-                "},\n" +
-                "{\n" +
-                "\"MemoryId\": 4,\n" +
-                "\"MemoryName\": \"Sleep\",\n" +
-                "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 2,\n" +
-                "\"MemoryInstructions\": \"This activity cannot be renamed or deleted. You may only change its schedule.\",\n" +
-                "\"MemoryDates\": \"Thu Nov 26 2015 22:55:00 GMT+0800\"\n" +
+                "\"MemoryDates\": \"Thu Dec 10 2015 01:16:30 GMT+0800,Thu Dec 17 2015 15:26:36 GMT+0800\"\n" +
                 "}\n" +
                 "]}").apply();
 //        editor.edit().putString("SampleAlarmString", "{\n" +

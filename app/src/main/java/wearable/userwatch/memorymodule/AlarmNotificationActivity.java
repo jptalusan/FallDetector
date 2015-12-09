@@ -82,6 +82,7 @@ public class AlarmNotificationActivity extends Activity {
         }
 
         //For different behaviors of alarms
+        //For WAKE alarm names
         if(memoryName.equals(Constants.ALARM_WAKE)) {
             //TODO: trigger another alarm 30 minutes from now to get the measurement of activity counter and erase it after analysis
             startActivityDetectionAlarm();
@@ -124,6 +125,7 @@ public class AlarmNotificationActivity extends Activity {
         stopAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editor.edit().putBoolean(Constants.USER_IS_AWAKE, true).apply();
                 alarm.stopAlarm(getApplicationContext());
                 //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
                 stopActivityDetectionAlarm();

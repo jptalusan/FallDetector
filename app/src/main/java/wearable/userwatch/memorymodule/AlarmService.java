@@ -65,7 +65,9 @@ public class AlarmService extends IntentService {
             Log.d(TAG, "Alarm Activity Detect");
             Log.d(TAG, "Activity Count: " + editor.getInt(Constants.ACTIVE_COUNTER, 0));
             if(editor.getInt(Constants.ACTIVE_COUNTER, 0) == 0) {
-                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER/Constants.MILLIS_IN_A_MINUTE + " minutes.");
+                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER / Constants.MILLIS_IN_A_MINUTE + " minutes.");
+            } else if(!editor.getBoolean(Constants.USER_IS_AWAKE, false)) { //Emergency protocol if alarm has not been pressed in 30 minutes
+                Log.d(TAG, "User has not pressed alarm for " + Constants.AFTER_WAKE_TIMER / Constants.MILLIS_IN_A_MINUTE + " minutes.");
             } else {
                 editor.edit().putInt(Constants.ACTIVE_COUNTER, 0).apply();
                 editor.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();

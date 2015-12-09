@@ -85,7 +85,7 @@ public class Alarm implements Parcelable {
         PendingIntent pendingIntent;
         AlarmManager manager;
         if(MemoryDates != null) {
-            //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            //TODO: must check for bug that causes multiple alarms!?
             if(MemoryDates.length > 1)  {
                 MemoryFreq = Constants.ALARM_FREQUENCY_WEEKLY;
             }

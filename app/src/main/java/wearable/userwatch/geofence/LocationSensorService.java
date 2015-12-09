@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -177,22 +178,46 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         mLastLocation = location;
 
         //Home Coordinates
-        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "14.659799")));
-        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.LATITUDE, "121.039999")));
+        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.HOME_LATITUDE, "14.659799")));
+        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.HOME_LATITUDE, "121.039999")));
 
         Log.d(TAG, mLastLocation.toString());
         Log.d(TAG, "Priority: " + mLocationRequest.getPriority());
 
-        if(mLastLocation.getAccuracy() > Constants.LOCATION_ACCURACY && mLastLocation.getLatitude() != 0.0 && mLastLocation.distanceTo(userHome) > Constants.FENCE_RADIUS_IN_METERS) {
+        //
+        editor.edit().putBoolean(Constants.EMERGENCY_STATUS, true).apply();
+        Log.d(TAG, "Time: " + Utils.getCurrentTimeStampInSeconds());
+        Log.d(TAG, "Written time: " + editor.getLong(Constants.EMERGENCY_TIMER, 0));
+        if(Utils.getCurrentTimeStampInSeconds() - editor.getLong(Constants.EMERGENCY_TIMER, 0) > 60) {
+            if (editor.getBoolean(Constants.EMERGENCY_STATUS, false)) {
+                Log.d(TAG, "Writing emergency location");
+                editor.edit().putLong(Constants.EMERGENCY_TIMER, Utils.getCurrentTimeStampInSeconds()).apply();
+                editor.edit().putString(Constants.USER_CURRENT_LATITUDE, mLastLocation.getLatitude() + "").apply();
+                editor.edit().putString(Constants.USER_CURRENT_LONGITUDE, mLastLocation.getLongitude() + "").apply();
+            }
+        } else {
+            Log.d(TAG, "Time before next emergency loc: " + (60 - Utils.getCurrentTimeStampInSeconds() - editor.getLong(Constants.EMERGENCY_TIMER, 0)));
+        }
+
+        //Constants.FENCE_RADIUS_IN_METERS, once the distance from home, exceeds this, there will be a flag.
+        if(mLastLocation.getAccuracy() < Constants.LOCATION_ACCURACY && mLastLocation.getLatitude() != 0.0 && mLastLocation.distanceTo(userHome) > Constants.FENCE_RADIUS_IN_METERS) {
             //TODO: Prompt notification for user exiting home
+            Toast.makeText(getApplicationContext(), "User has left home!", Toast.LENGTH_SHORT).show();
+            editor.edit().putBoolean(Constants.IS_USER_AT_HOME, false).apply();
+            Log.d(TAG, "User has left home.");
             Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
             if(mLocationRequest.getFastestInterval() != 10000) {
                 if(isNewPrioritySameAsCurrentPriority()) {
                     switchToHighAccuracy();
-                }
             }
-        } else if(mLastLocation.distanceTo(previousLocation) < Constants.NEGLIGIBLE_LOCATION_CHANGE) { //User has stayed in same vicinity for X seconds
+            }
+        } else if(mLastLocation.getAccuracy() > Constants.FENCE_RADIUS_IN_METERS && mLastLocation.getLatitude() != 0.0) {
+            Log.d(TAG, "Location inconclusive.");
+        } else { //if(mLastLocation.distanceTo(previousLocation) < Constants.NEGLIGIBLE_LOCATION_CHANGE) { //User has stayed in same vicinity for X seconds
             Log.d(TAG, "delaying requests");
+            Log.d(TAG, "User is still at home.");
+            Toast.makeText(getApplicationContext(), "User has arrived home!", Toast.LENGTH_SHORT).show();
+            editor.edit().putBoolean(Constants.IS_USER_AT_HOME, true).apply();
             if(mLocationRequest.getFastestInterval() != 25000) {
                 if(Utils.isNetworkAvailable(getApplicationContext()) && !Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
                     if(isNewPrioritySameAsCurrentPriority()) {
@@ -200,9 +225,10 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                     }
                 }
             }
-        } else {
-            Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
         }
+//        else {
+//            Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
+//        }
 
         previousLocation.setLatitude(mLastLocation.getLatitude());//your coordinates of course
         previousLocation.setLongitude(mLastLocation.getLongitude());
