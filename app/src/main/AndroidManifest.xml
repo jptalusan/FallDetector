@@ -43,7 +43,7 @@
             android:enabled="true"
             android:exported="true">
         </service>
-        <service android:name="wearable.userwatch.memorymodule.AlarmService">
+        <service android:name="wearable.userwatch.memorymodule.AlarmService"
             android:enabled="true"
             android:exported="true">
         </service>

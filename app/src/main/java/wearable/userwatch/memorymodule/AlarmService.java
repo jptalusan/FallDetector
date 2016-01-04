@@ -22,7 +22,7 @@ import wearable.userwatch.accelerometer.R;
  * This class handles the behaviors of all alarms in the memoryModule
  */
 public class AlarmService extends IntentService {
-    private static final String TAG = "Wearable.AlarmService";
+    private static final String TAG = "AlarmService";
     private String appname;
     private SharedPreferences editor;
     public AlarmService() {
@@ -56,7 +56,6 @@ public class AlarmService extends IntentService {
             alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             alarmIntent.putExtras(intent);
             getApplication().startActivity(alarmIntent);
-
         }
 
         //Different ALARM behavior that is set when the alarm WAKE is triggered, triggers after 30 seconds

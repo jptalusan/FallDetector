@@ -87,6 +87,7 @@ public class Constants {
     public static final String MEMORIES_MEMORYFREQ = "MemoryFreq";
     public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
     public static final String MEMORIES_MEMORYDATES = "MemoryDates";
+    public static final String MEMORIES_MEMORYTYPE = "MemoryType";
 
     //TIME DATE CONSTANTS
     public static final int DAYS_IN_A_WEEK = 7;

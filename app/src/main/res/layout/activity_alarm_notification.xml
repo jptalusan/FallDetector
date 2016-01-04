@@ -15,4 +15,11 @@
         android:layout_height="wrap_content"
         android:text="stopAlarm"
         android:id="@+id/stopAlarm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/memoryType" />
 </LinearLayout>

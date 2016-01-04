@@ -41,7 +41,9 @@ public class AlarmNotificationActivity extends Activity {
     private Button stopAlarm;
     private static AlarmNotificationActivity inst;
     private TextView alarmMessage;
+    private TextView TvMemoryType;
     private String memoryId = "";
+    private String memoryType = "";
     private Alarm alarm;
     private PowerManager.WakeLock mWakeLock;
     private Ringtone r;
@@ -65,13 +67,14 @@ public class AlarmNotificationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_notification);
 
-        Log.d("TAG", "Start Alarm Activity");
+        Log.d(TAG, "Start Alarm Activity");
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
 
         stopAlarm = (Button) findViewById(R.id.stopAlarm);
         alarmMessage = (TextView) findViewById(R.id.alarmMessage);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        TvMemoryType = (TextView) findViewById(R.id.memoryType);
 
         Bundle data = getIntent().getExtras();
         alarm = data.getParcelable(Constants.ALARM);
@@ -79,6 +82,8 @@ public class AlarmNotificationActivity extends Activity {
             alarmMessage.setText(alarm.getMemoryInstructions());
             memoryId = alarm.getMemoryId();
             memoryName = alarm.getMemoryName();
+            memoryType = alarm.getMemoryType();
+            TvMemoryType.setText(Constants.MEMORIES_MEMORYTYPE + ":" + memoryType);
         }
 
         //For different behaviors of alarms
@@ -87,8 +92,8 @@ public class AlarmNotificationActivity extends Activity {
             //TODO: trigger another alarm 30 minutes from now to get the measurement of activity counter and erase it after analysis
             startActivityDetectionAlarm();
             try {
-                ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
-                Alarm.cancelAllAlarms(getApplicationContext(), alarms);
+                ArrayList<Alarm> alarms = AlarmUtils.parseAlarmString(editor.getString("SampleAlarmString", ""));
+                AlarmUtils.cancelAllAlarms(getApplicationContext(), alarms);
                 Log.d(TAG, "cancelling all alarms");
             } catch (JSONException e) {
                 Log.e(TAG, "JSONException= " + e);
@@ -126,7 +131,7 @@ public class AlarmNotificationActivity extends Activity {
             @Override
             public void onClick(View v) {
                 editor.edit().putBoolean(Constants.USER_IS_AWAKE, true).apply();
-                alarm.stopAlarm(getApplicationContext());
+                AlarmUtils.stopAlarm(getApplicationContext(), alarm);
                 //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
                 stopActivityDetectionAlarm();
                 r.stop();
@@ -168,6 +173,7 @@ public class AlarmNotificationActivity extends Activity {
     }
 
     public void startActivityDetectionAlarm() {
+        Log.d(TAG, "startActivityDetectionAlarm");
         PendingIntent pendingIntent;
         AlarmManager manager;
         Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);
@@ -178,6 +184,7 @@ public class AlarmNotificationActivity extends Activity {
     }
 
     public void stopActivityDetectionAlarm() {
+        Log.d(TAG, "stopActivityDetectionAlarm");
         PendingIntent pendingIntent;
         AlarmManager manager;
         Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);

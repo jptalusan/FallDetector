@@ -32,9 +32,10 @@ import wearable.userwatch.falldetector.AccelerometerSensorService;
 import wearable.userwatch.accelerometer.R;
 import wearable.userwatch.geofence.LocationSensorService;
 import wearable.userwatch.memorymodule.Alarm;
+import wearable.userwatch.memorymodule.AlarmUtils;
 
 public class BlankActivity extends AppCompatActivity {
-    private static String DEBUG_TAG = "Activity";
+    private static String DEBUG_TAG = "BlankActivity";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
     private SharedPreferences editor;
     private String appname;
@@ -46,7 +47,7 @@ public class BlankActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blank);
 
-        Log.d("TAG", "Start");
+        Log.d(DEBUG_TAG, "Start");
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
 
@@ -56,7 +57,7 @@ public class BlankActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View arg0) {
-                alarmSample.stopAlarm(getApplicationContext());
+                AlarmUtils.stopAlarm(getApplicationContext(), alarmSample);
             }
 
         });
@@ -79,6 +80,7 @@ public class BlankActivity extends AppCompatActivity {
     }
 
     private void startAlarmDemo() throws JSONException {
+        //Note: 12 mn is 00:00:00
         editor.edit().putString("SampleAlarmString", "{\"memories\": [\n" +
                 "{\n" +
                 "\"MemoryId\": 1,\n" +
@@ -86,7 +88,9 @@ public class BlankActivity extends AppCompatActivity {
                 "\"fkUserId\": 4,\n" +
                 "\"MemoryFreq\": 1,\n" +
                 "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
-                "\"MemoryDates\": \"Thu Dec 10 2015 01:16:30 GMT+0800,Thu Dec 17 2015 15:26:36 GMT+0800\"\n" +
+                "\"MemoryDates\": \"Mon Jan 04 2016 00:48:00 GMT+0800,Tue Jan 05 2016 15:26:36 GMT+0800\",\n" +
+//                "\"MemoryDates\": \"Mon Jan 04 2016 00:27:00 GMT+0800\",\n" +
+                "\"MemoryType\": 0\n" +
                 "}\n" +
                 "]}").apply();
 //        editor.edit().putString("SampleAlarmString", "{\n" +
@@ -133,14 +137,15 @@ public class BlankActivity extends AppCompatActivity {
 //                "}\n" +
 //                "]\n" +
 //                "}").apply();
-        ArrayList<Alarm> alarms = Alarm.parseAlarmString(editor.getString("SampleAlarmString", ""));
+        ArrayList<Alarm> alarms = AlarmUtils.parseAlarmString(editor.getString("SampleAlarmString", ""));
         for(Alarm a : alarms) {
             Log.d(DEBUG_TAG, a.toString());
         }
 
-        Alarm.cancelAllAlarms(getApplicationContext(), alarms);
-
-        Alarm.startAllAlarms(getApplicationContext(), alarms);
+        AlarmUtils.cancelAllAlarms(getApplicationContext(), alarms);
+        AlarmUtils.startAllAlarms(getApplicationContext(), alarms);
+//        Alarm.cancelAllAlarms(getApplicationContext(), alarms);
+//        Alarm.startAllAlarms(getApplicationContext(), alarms);
 //        alarmSample = alarms.get(0);
 //        alarmSample.setAlarm(getApplicationContext());
 
