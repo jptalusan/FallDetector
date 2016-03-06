@@ -81,50 +81,77 @@ public class BlankActivity extends AppCompatActivity {
 
     private void startAlarmDemo() throws JSONException {
         //Note: 12 mn is 00:00:00
-        editor.edit().putString("SampleAlarmString", "{\"memories\": [\n" +
-                "{\n" +
-                "\"MemoryId\": 1,\n" +
-                "\"MemoryName\": \"Sleep\",\n" +
-                "\"fkUserId\": 4,\n" +
-                "\"MemoryFreq\": 1,\n" +
-                "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
-                "\"MemoryDates\": \"Tue Jan 05 2016 00:07:00 GMT+0800,Tue Jan 05 2016 00:09:00 GMT+0800\",\n" +
-//                "\"MemoryDates\": \"Mon Jan 04 2016 23:34:00 GMT+0800\",\n" +
-                "\"MemoryType\": 0\n" +
-                "}\n" +
-                "]}").apply();
-
-//        editor.edit().putString("SampleAlarmString",
-//                "{\n" +
-//                "\"memories\": [\n" +
+//        editor.edit().putString("SampleAlarmString", "{\"memories\": [\n" +
 //                "{\n" +
 //                "\"MemoryId\": 1,\n" +
-//                "\"MemoryName\": \"Wake\",\n" +
-//                "\"fkUserId\": 4,\n" +
-//                "\"MemoryFreq\": 1,\n" +
-//                "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
-//                "\"MemoryDates\": \"Mon Jan 04 2016 23:24:00 GMT+0800,Mon Jan 04 2016 08:00:57 GMT+0800,Tue Jan 05 2016 08:00:57 GMT+0800,Wed Jan 06 2016 08:00:57 GMT+0800,Thu Jan 07 2016 08:00:57 GMT+0800,Fri Jan 08 2016 08:00:57 GMT+0800,Sat Jan 02 2016 13:12:37 GMT+0800,\",\n" +
-//                "\"MemoryType\": 0\n" +
-//                "},\n" +
-//                "{\n" +
-//                "\"MemoryId\": 4,\n" +
 //                "\"MemoryName\": \"Sleep\",\n" +
 //                "\"fkUserId\": 4,\n" +
 //                "\"MemoryFreq\": 1,\n" +
-//                "\"MemoryInstructions\": \"Please put your smartguard into the docking station\",\n" +
-//                "\"MemoryDates\": \"Tue Dec 29 2015 23:00:07 GMT+0800,\",\n" +
-//                "\"MemoryType\": 0\n" +
-//                "},\n" +
-//                "{\n" +
-//                "\"MemoryId\": 24,\n" +
-//                "\"MemoryName\": \"Fitminutes\",\n" +
-//                "\"fkUserId\": 4,\n" +
-//                "\"MemoryFreq\": 1,\n" +
-//                "\"MemoryInstructions\": \"Go for a short walk\",\n" +
-//                "\"MemoryDates\": \"Wed Dec 30 2015 09:13:41 GMT+0800,\",\n" +
+//                "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
+//                "\"MemoryDates\": \"Tue Jan 05 2016 00:07:00 GMT+0800,Tue Jan 05 2016 00:09:00 GMT+0800\",\n" +
+////                "\"MemoryDates\": \"Mon Jan 04 2016 23:34:00 GMT+0800\",\n" +
 //                "\"MemoryType\": 0\n" +
 //                "}\n" +
 //                "]}").apply();
+
+        editor.edit().putString("SampleAlarmString",
+                "{\n" +
+                        "\"memories\": [\n" +
+                        "{\n" +
+                        "\"MemoryId\": 1,\n" +
+                        "\"MemoryName\": \"Wake\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 1,\n" +
+                        "\"MemoryInstructions\": \"Wake up and wear smartguard watch.\",\n" +
+                        "\"MemoryDates\": \"Tue Jan 12 2016 07:00:16 GMT+0800,Wed Jan 13 2016 07:00:44 GMT+0800,\",\n" +
+                        "\"MemoryType\": 0\n" +
+                        "},\n" +
+                        "{\n" +
+                        "\"MemoryId\": 4,\n" +
+                        "\"MemoryName\": \"Sleep\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 1,\n" +
+                        "\"MemoryInstructions\": \"Please put your smartguard into the docking station\",\n" +
+                        "\"MemoryDates\": \"Mon Jan 11 2016 23:00:33 GMT+0800,Tue Jan 12 2016 23:00:00 GMT+0800,Wed Jan 13 2016 23:00:09 GMT+0800,\",\n" +
+                        "\"MemoryType\": 0\n" +
+                        "},\n" +
+                        "{\n" +
+                        "\"MemoryId\": 24,\n" +
+                        "\"MemoryName\": \"Fitminutes\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 1,\n" +
+                        "\"MemoryInstructions\": \"Go for a short walk\",\n" +
+                        "\"MemoryDates\": \"Thu Feb 25 2016 07:55:12 GMT+0800,\",\n" +
+                        "\"MemoryType\": 2\n" +
+                        "},\n" +
+                        "{\n" +
+                        "\"MemoryId\": 27,\n" +
+                        "\"MemoryName\": \"Drink sleeping pills\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 1,\n" +
+                        "\"MemoryInstructions\": \"Please take antibiotics and swallow them together with a glass of water. Please confirm by pressing the green button.\",\n" +
+                        "\"MemoryDates\": \"Tue Jan 12 2016 19:30:36 GMT+0800,Sat Jan 09 2016 18:59:27 GMT+0800,Mon Jan 11 2016 15:19:48 GMT+0800,Thu Jan 14 2016 17:09:38 GMT+0800,\",\n" +
+                        "\"MemoryType\": 1\n" +
+                        "},\n" +
+                        "{\n" +
+                        "\"MemoryId\": 28,\n" +
+                        "\"MemoryName\": \"Short Nap\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 1,\n" +
+                        "\"MemoryInstructions\": \"Take a short nap and charge watch\",\n" +
+                        "\"MemoryDates\": \"Wed Jan 13 2016 10:04:32 GMT+0800,\",\n" +
+                        "\"MemoryType\": 0\n" +
+                        "},\n" +
+                        "{\n" +
+                        "\"MemoryId\": 29,\n" +
+                        "\"MemoryName\": \"Weight watch\",\n" +
+                        "\"fkUserId\": 4,\n" +
+                        "\"MemoryFreq\": 2,\n" +
+                        "\"MemoryInstructions\": null,\n" +
+                        "\"MemoryDates\": \"Wed Jan 13 2016 18:05:52 GMT+0800,\",\n" +
+                        "\"MemoryType\": 4\n" +
+                        "}\n" +
+                        "]}").apply();
 
         ArrayList<Alarm> alarms = AlarmUtils.parseAlarmString(editor.getString("SampleAlarmString", ""));
         for(Alarm a : alarms) {

@@ -91,7 +91,7 @@ public class Constants {
 
     //TIME DATE CONSTANTS
     public static final int DAYS_IN_A_WEEK = 7;
-    public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
-    public static final int MILLIS_IN_A_MINUTE = 60 * 1000;
+    public static final long MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
+    public static final long MILLIS_IN_A_MINUTE = 60 * 1000;
 
 }

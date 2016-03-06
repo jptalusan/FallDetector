@@ -81,9 +81,9 @@ public class AlarmUtils {
                         alarmIntent.putExtra(Constants.ALARM, alarm);
                         pendingIntent = PendingIntent.getService(context, Integer.parseInt(alarm.MemoryId + index), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
                         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        manager.setExact(AlarmManager.RTC_WAKEUP, (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY, pendingIntent);
+                        manager.setExact(AlarmManager.RTC_WAKEUP, (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + ((daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY), pendingIntent);
                         Log.d(TAG, "Setting weekly alarm (a) " + alarm.MemoryId + ":" + index + " on: " + Utils.convertMillisToDateAndTimeString(
-                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY));
+                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + ((daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY)));
                     } else if(daysSinceMemoryDate == 0) { // Alarm is supposed to be set today.
                         if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(memoryDate))) { //Check if timestamp isn't in the past
                             alarmIntent.putExtra(Constants.ALARM, alarm);
@@ -134,13 +134,13 @@ public class AlarmUtils {
                             Utils.getCurrentTimeStampInSeconds());
                     if((daysSinceMemoryDate + 1) % Constants.DAYS_IN_A_WEEK == 0) { // + 1 since alarm should be in the future
                         alarmIntent.putExtra(Constants.ALARM, alarm);
-                        Log.d(TAG, "Stopping weekly alarm " + alarm.MemoryId + ":" + index + ": " + memoryDate);
+//                        Log.d(TAG, "Stopping weekly alarm " + alarm.MemoryId + ":" + index + ": " + memoryDate);
                         pendingIntent = PendingIntent.getService(context, Integer.parseInt(alarm.MemoryId + index), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
                         manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                         manager.cancel(pendingIntent);
                         pendingIntent.cancel();
                         Log.d(TAG, "Stopping weekly alarm (a) " + alarm.MemoryId + ":" + index + " on: " + Utils.convertMillisToDateAndTimeString(
-                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY));
+                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + ((daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY)));
                     } else if(daysSinceMemoryDate == 0) { // Alarm was set today.
                         if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(alarm.MemoryDates[0]))) { //Check if timestamp isn't in the past
                             alarmIntent.putExtra(Constants.ALARM, alarm);
